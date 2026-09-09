@@ -1,0 +1,8 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { Mail, MessageCircle } from "lucide-react";
+import { ContentPage } from "@/components/content-page";
+import { WHATSAPP_URL } from "@/data/jobs";
+import { Button } from "@/components/ui/button";
+
+export const Route = createFileRoute("/contact")({ head: () => ({ meta: [{ title: "Contact | Get Hired KE" }, { name: "description", content: "Contact Get Hired KE or join the WhatsApp opportunity channel." }, { property: "og:title", content: "Contact | Get Hired KE" }, { property: "og:description", content: "Reach Get Hired KE and join the opportunity community." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }), component: Contact });
+function Contact() { return <ContentPage eyebrow="Get in touch" title="Let’s connect." intro="For opportunity updates, community news and announcements, the WhatsApp channel is the quickest place to join us." icon={Mail}><div className="rounded-lg border border-border bg-card p-6 sm:flex sm:items-center sm:justify-between"><div><h2 className="font-heading text-xl font-bold">Join the Get Hired KE community</h2><p className="mt-2 text-sm text-muted-foreground">Open the official WhatsApp channel in a new tab.</p></div><Button asChild className="mt-5 sm:mt-0"><a href={WHATSAPP_URL} target="_blank" rel="noreferrer"><MessageCircle className="size-4" />Join WhatsApp</a></Button></div></ContentPage>; }

@@ -1,0 +1,6 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { HeartHandshake } from "lucide-react";
+import { ContentPage } from "@/components/content-page";
+
+export const Route = createFileRoute("/about")({ head: () => ({ meta: [{ title: "About Get Hired KE" }, { name: "description", content: "Learn how Get Hired KE helps Kenyan talent find useful opportunities." }, { property: "og:title", content: "About Get Hired KE" }, { property: "og:description", content: "Connecting Kenyan talent with useful opportunities and guidance." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }), component: About });
+function About() { return <ContentPage eyebrow="Our purpose" title="Helping opportunity travel further." intro="Get Hired KE exists to make jobs, internships, scholarships and practical career guidance easier to discover." icon={HeartHandshake}><div className="max-w-2xl space-y-5 text-base leading-8 text-muted-foreground"><p>We focus on clear, timely information that helps people make confident career moves across Kenya.</p><p>Our community brings opportunities closer to the people who need them, while keeping every update simple to scan and act on.</p></div></ContentPage>; }
