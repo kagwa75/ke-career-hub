@@ -24,7 +24,8 @@ export const Route = createFileRoute("/jobs/$jobId")({
 
 function JobDetails() {
   const job = Route.useLoaderData();
-  const related = jobs.filter((item) => item.id !== job.id && item.category === job.category).slice(0, 2);
+  const sameCategory = jobs.filter((item) => item.id !== job.id && item.category === job.category);
+  const related = (sameCategory.length ? sameCategory : jobs.filter((item) => item.id !== job.id)).slice(0, 2);
   return (
     <>
       <section className="border-b border-border bg-surface"><div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8"><Link to="/" search={{}} className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary"><ArrowLeft className="size-4" />Back to jobs</Link><div className="mt-7 flex flex-col justify-between gap-7 lg:flex-row lg:items-end"><div className="flex items-start gap-4"><div className="flex size-14 shrink-0 items-center justify-center rounded-md bg-primary-soft font-heading font-bold text-primary">{job.initials}</div><div>{job.featured && <span className="rounded-full bg-highlight-soft px-2.5 py-1 text-xs font-bold text-highlight-strong">Featured opportunity</span>}<h1 className="mt-3 font-heading text-3xl font-extrabold sm:text-4xl">{job.title}</h1><p className="mt-2 text-lg text-muted-foreground">{job.company}</p></div></div><Button asChild size="lg"><a href={`mailto:careers@example.com?subject=Sample application: ${job.title}`}><Send className="size-4" />Apply now</a></Button></div><div className="mt-8 flex flex-wrap gap-3"><Meta icon={MapPin} text={job.location} /><Meta icon={BriefcaseBusiness} text={job.type} /><Meta icon={Clock3} text={job.posted} /><Meta icon={CalendarDays} text={`Apply by ${job.deadline}`} /></div></div></section>

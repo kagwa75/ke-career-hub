@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BriefcaseBusiness, Code2, GraduationCap, HeartPulse, MapPin, Megaphone, MessageCircle, Search, Sparkles, Users, WalletCards, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/job-card";
 import { categories, jobs, WHATSAPP_URL } from "@/data/jobs";
@@ -28,6 +28,11 @@ function HomePage() {
   const [location, setLocation] = useState("");
   const [category, setCategory] = useState(routeSearch.category ?? "All categories");
   const [submitted, setSubmitted] = useState(Boolean(routeSearch.category));
+
+  useEffect(() => {
+    setCategory(routeSearch.category ?? "All categories");
+    setSubmitted(Boolean(routeSearch.category));
+  }, [routeSearch.category]);
 
   const results = useMemo(() => {
     if (!submitted && category === "All categories") return jobs;
