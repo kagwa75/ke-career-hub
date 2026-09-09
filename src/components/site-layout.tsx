@@ -35,12 +35,12 @@ export function SiteLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-50 border-b border-border/80 bg-background/95 backdrop-blur">
         <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Link to="/" search={{}} className="flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <span className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground"><BriefcaseBusiness className="size-5" /></span>
             <span className="font-heading text-lg font-extrabold">Get Hired <span className="text-primary">KE</span></span>
           </Link>
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Main navigation">
-            <Link to="/" activeOptions={{ exact: true }} className="nav-link">Home</Link>
+            <Link to="/" search={{}} activeOptions={{ exact: true }} className="nav-link">Home</Link>
             <div className="relative" ref={menuRef}>
               <Button variant="ghost" size="sm" aria-expanded={categoriesOpen} aria-haspopup="menu" onClick={() => setCategoriesOpen((open) => !open)}>
                 Categories <ChevronDown className={`size-4 transition-transform ${categoriesOpen ? "rotate-180" : ""}`} />
@@ -67,7 +67,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         {mobileOpen && (
           <nav className="border-t border-border bg-background px-4 py-4 lg:hidden" aria-label="Mobile navigation">
             <div className="mx-auto flex max-w-7xl flex-col gap-1">
-              {navItems.map((item) => <Link key={item.to} to={item.to} className="rounded-md px-3 py-3 text-sm font-semibold hover:bg-muted">{item.label}</Link>)}
+              {navItems.map((item) => <Link key={item.to} to={item.to} search={{}} className="rounded-md px-3 py-3 text-sm font-semibold hover:bg-muted">{item.label}</Link>)}
               <p className="px-3 pb-1 pt-3 text-xs font-bold uppercase text-muted-foreground">Categories</p>
               <div className="grid grid-cols-2 gap-1">
                 {categories.slice(0, 4).map((category) => <Link key={category.name} to="/" search={{ category: category.name }} className="rounded-md px-3 py-2 text-sm hover:bg-muted">{category.name}</Link>)}

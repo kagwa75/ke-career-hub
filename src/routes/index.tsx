@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/job-card";
 import { categories, jobs, WHATSAPP_URL } from "@/data/jobs";
 
-type SearchParams = { category: string | undefined };
+type SearchParams = { category?: string };
 
 export const Route = createFileRoute("/")({
-  validateSearch: (search: Record<string, unknown>): SearchParams => ({ category: typeof search["category"] === "string" ? search["category"] : undefined }),
+  validateSearch: (search: Record<string, unknown>): SearchParams => typeof search["category"] === "string" ? { category: search["category"] } : {},
   head: () => ({ meta: [
     { title: "Jobs in Kenya | Get Hired KE" },
     { name: "description", content: "Discover fresh jobs, internships and graduate opportunities across Kenya with Get Hired KE." },
