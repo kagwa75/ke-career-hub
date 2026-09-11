@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { BriefcaseBusiness, ChevronDown, Menu, MessageCircle, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { categories, opportunityTypes, WHATSAPP_URL } from "@/data/jobs";
+import { opportunityTypes, WHATSAPP_URL } from "@/data/jobs";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
