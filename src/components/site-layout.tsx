@@ -46,10 +46,10 @@ export function SiteLayout({ children }: { children: ReactNode }) {
                 Categories <ChevronDown className={`size-4 transition-transform ${categoriesOpen ? "rotate-180" : ""}`} />
               </Button>
               {categoriesOpen && (
-                <div className="absolute left-0 top-11 w-64 rounded-lg border border-border bg-card p-2 shadow-card" role="menu">
-                  {categories.map((category) => (
-                    <Link key={category.name} to="/" search={{ category: category.name }} className="flex items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium hover:bg-muted" role="menuitem">
-                      {category.name}<span className="text-xs text-muted-foreground">{category.count}</span>
+                <div className="absolute left-0 top-11 max-h-96 w-72 overflow-y-auto rounded-lg border border-border bg-card p-2 shadow-card" role="menu">
+                  {opportunityTypes.map((item) => (
+                    <Link key={item.slug} to="/categories" search={{ type: item.slug, q: "", location: "", employment: "", field: "", experience: "", deadline: "", sort: "newest", page: 1 }} className="flex items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium hover:bg-muted" role="menuitem">
+                      {item.label}
                     </Link>
                   ))}
                 </div>
