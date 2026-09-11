@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { BriefcaseBusiness, ChevronDown, Menu, MessageCircle, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { categories, WHATSAPP_URL } from "@/data/jobs";
+import { opportunityTypes, WHATSAPP_URL } from "@/data/jobs";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
@@ -46,10 +46,10 @@ export function SiteLayout({ children }: { children: ReactNode }) {
                 Categories <ChevronDown className={`size-4 transition-transform ${categoriesOpen ? "rotate-180" : ""}`} />
               </Button>
               {categoriesOpen && (
-                <div className="absolute left-0 top-11 w-64 rounded-lg border border-border bg-card p-2 shadow-card" role="menu">
-                  {categories.map((category) => (
-                    <Link key={category.name} to="/" search={{ category: category.name }} className="flex items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium hover:bg-muted" role="menuitem">
-                      {category.name}<span className="text-xs text-muted-foreground">{category.count}</span>
+                <div className="absolute left-0 top-11 max-h-96 w-72 overflow-y-auto rounded-lg border border-border bg-card p-2 shadow-card" role="menu">
+                  {opportunityTypes.map((item) => (
+                    <Link key={item.slug} to="/categories" search={{ type: item.slug, q: "", location: "", employment: "", field: "", experience: "", deadline: "", sort: "newest", page: 1 }} className="flex items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium hover:bg-muted" role="menuitem">
+                      {item.label}
                     </Link>
                   ))}
                 </div>
@@ -70,7 +70,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
               {navItems.map((item) => <Link key={item.to} to={item.to} search={{}} className="rounded-md px-3 py-3 text-sm font-semibold hover:bg-muted">{item.label}</Link>)}
               <p className="px-3 pb-1 pt-3 text-xs font-bold uppercase text-muted-foreground">Categories</p>
               <div className="grid grid-cols-2 gap-1">
-                {categories.slice(0, 4).map((category) => <Link key={category.name} to="/" search={{ category: category.name }} className="rounded-md px-3 py-2 text-sm hover:bg-muted">{category.name}</Link>)}
+                {opportunityTypes.slice(1, 7).map((item) => <Link key={item.slug} to="/categories" search={{ type: item.slug, q: "", location: "", employment: "", field: "", experience: "", deadline: "", sort: "newest", page: 1 }} className="rounded-md px-3 py-2 text-sm hover:bg-muted">{item.label}</Link>)}
               </div>
               <Button asChild className="mt-3 w-full"><a href={WHATSAPP_URL} target="_blank" rel="noreferrer"><MessageCircle className="size-4" />Join WhatsApp</a></Button>
             </div>

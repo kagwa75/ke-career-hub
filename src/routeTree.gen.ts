@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as CareerHubRouteImport } from './routes/career-hub'
+import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
@@ -29,6 +30,11 @@ const AboutRoute = AboutRouteImport.update({
 const CareerHubRoute = CareerHubRouteImport.update({
   id: '/career-hub',
   path: '/career-hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategoriesRoute = CategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/career-hub': typeof CareerHubRoute
+  '/categories': typeof CategoriesRoute
   '/contact': typeof ContactRoute
   '/services': typeof ServicesRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/career-hub': typeof CareerHubRoute
+  '/categories': typeof CategoriesRoute
   '/contact': typeof ContactRoute
   '/services': typeof ServicesRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/career-hub': typeof CareerHubRoute
+  '/categories': typeof CategoriesRoute
   '/contact': typeof ContactRoute
   '/services': typeof ServicesRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
@@ -75,14 +84,28 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/about' | '/career-hub' | '/contact' | '/services' | '/jobs/$jobId'
+    | '/'
+    | '/about'
+    | '/career-hub'
+    | '/categories'
+    | '/contact'
+    | '/services'
+    | '/jobs/$jobId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/career-hub' | '/contact' | '/services' | '/jobs/$jobId'
+  to:
+    | '/'
+    | '/about'
+    | '/career-hub'
+    | '/categories'
+    | '/contact'
+    | '/services'
+    | '/jobs/$jobId'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/career-hub'
+    | '/categories'
     | '/contact'
     | '/services'
     | '/jobs/$jobId'
@@ -92,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   CareerHubRoute: typeof CareerHubRoute
+  CategoriesRoute: typeof CategoriesRoute
   ContactRoute: typeof ContactRoute
   ServicesRoute: typeof ServicesRoute
   JobsJobIdRoute: typeof JobsJobIdRoute
@@ -118,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/career-hub'
       fullPath: '/career-hub'
       preLoaderRoute: typeof CareerHubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/categories': {
+      id: '/categories'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof CategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -148,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   CareerHubRoute: CareerHubRoute,
+  CategoriesRoute: CategoriesRoute,
   ContactRoute: ContactRoute,
   ServicesRoute: ServicesRoute,
   JobsJobIdRoute: JobsJobIdRoute,
