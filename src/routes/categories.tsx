@@ -68,7 +68,7 @@ function CategoriesPage() {
   const [keyword, setKeyword] = useState(search.q);
 
   const update = (patch: Partial<CategorySearch>) =>
-    navigate({ search: (prev) => ({ ...prev, ...patch, page: patch.page ?? 1 }) });
+    navigate({ search: { ...search, ...patch, page: patch.page ?? 1 } });
 
   const activeType = opportunityTypes.find((item) => item.slug === search.type) ?? opportunityTypes[0]!;
 
