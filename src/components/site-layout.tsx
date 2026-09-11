@@ -70,7 +70,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
               {navItems.map((item) => <Link key={item.to} to={item.to} search={{}} className="rounded-md px-3 py-3 text-sm font-semibold hover:bg-muted">{item.label}</Link>)}
               <p className="px-3 pb-1 pt-3 text-xs font-bold uppercase text-muted-foreground">Categories</p>
               <div className="grid grid-cols-2 gap-1">
-                {categories.slice(0, 4).map((category) => <Link key={category.name} to="/" search={{ category: category.name }} className="rounded-md px-3 py-2 text-sm hover:bg-muted">{category.name}</Link>)}
+                {opportunityTypes.slice(1, 7).map((item) => <Link key={item.slug} to="/categories" search={{ type: item.slug, q: "", location: "", employment: "", field: "", experience: "", deadline: "", sort: "newest", page: 1 }} className="rounded-md px-3 py-2 text-sm hover:bg-muted">{item.label}</Link>)}
               </div>
               <Button asChild className="mt-3 w-full"><a href={WHATSAPP_URL} target="_blank" rel="noreferrer"><MessageCircle className="size-4" />Join WhatsApp</a></Button>
             </div>
