@@ -15,6 +15,7 @@ import { Route as CareerHubRouteImport } from './routes/career-hub'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as CareerHubSlugRouteImport } from './routes/career-hub.$slug'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +48,11 @@ const ServicesRoute = ServicesRouteImport.update({
   path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CareerHubSlugRoute = CareerHubSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => CareerHubRoute,
+} as any)
 const JobsJobIdRoute = JobsJobIdRouteImport.update({
   id: '/jobs/$jobId',
   path: '/jobs/$jobId',
@@ -56,29 +62,32 @@ const JobsJobIdRoute = JobsJobIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/career-hub': typeof CareerHubRoute
+  '/career-hub': typeof CareerHubRouteWithChildren
   '/categories': typeof CategoriesRoute
   '/contact': typeof ContactRoute
   '/services': typeof ServicesRoute
+  '/career-hub/$slug': typeof CareerHubSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/career-hub': typeof CareerHubRoute
+  '/career-hub': typeof CareerHubRouteWithChildren
   '/categories': typeof CategoriesRoute
   '/contact': typeof ContactRoute
   '/services': typeof ServicesRoute
+  '/career-hub/$slug': typeof CareerHubSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/career-hub': typeof CareerHubRoute
+  '/career-hub': typeof CareerHubRouteWithChildren
   '/categories': typeof CategoriesRoute
   '/contact': typeof ContactRoute
   '/services': typeof ServicesRoute
+  '/career-hub/$slug': typeof CareerHubSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/categories'
     | '/contact'
     | '/services'
+    | '/career-hub/$slug'
     | '/jobs/$jobId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/categories'
     | '/contact'
     | '/services'
+    | '/career-hub/$slug'
     | '/jobs/$jobId'
   id:
     | '__root__'
@@ -108,13 +119,14 @@ export interface FileRouteTypes {
     | '/categories'
     | '/contact'
     | '/services'
+    | '/career-hub/$slug'
     | '/jobs/$jobId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  CareerHubRoute: typeof CareerHubRoute
+  CareerHubRoute: typeof CareerHubRouteWithChildren
   CategoriesRoute: typeof CategoriesRoute
   ContactRoute: typeof ContactRoute
   ServicesRoute: typeof ServicesRoute
@@ -165,6 +177,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/career-hub/$slug': {
+      id: '/career-hub/$slug'
+      path: '/$slug'
+      fullPath: '/career-hub/$slug'
+      preLoaderRoute: typeof CareerHubSlugRouteImport
+      parentRoute: typeof CareerHubRoute
+    }
     '/jobs/$jobId': {
       id: '/jobs/$jobId'
       path: '/jobs/$jobId'
@@ -175,10 +194,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface CareerHubRouteChildren {
+  CareerHubSlugRoute: typeof CareerHubSlugRoute
+}
+
+const CareerHubRouteChildren: CareerHubRouteChildren = {
+  CareerHubSlugRoute: CareerHubSlugRoute,
+}
+
+const CareerHubRouteWithChildren = CareerHubRoute._addFileChildren(
+  CareerHubRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  CareerHubRoute: CareerHubRoute,
+  CareerHubRoute: CareerHubRouteWithChildren,
   CategoriesRoute: CategoriesRoute,
   ContactRoute: ContactRoute,
   ServicesRoute: ServicesRoute,
