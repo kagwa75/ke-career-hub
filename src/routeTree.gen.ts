@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as CareerHubRouteImport } from './routes/career-hub'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as CareerHubSlugRouteImport } from './routes/career-hub.$slug'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
@@ -44,6 +45,11 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/career-hub': typeof CareerHubRouteWithChildren
   '/categories': typeof CategoriesRoute
   '/contact': typeof ContactRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/services': typeof ServicesRouteWithChildren
   '/career-hub/$slug': typeof CareerHubSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/career-hub': typeof CareerHubRouteWithChildren
   '/categories': typeof CategoriesRoute
   '/contact': typeof ContactRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/services': typeof ServicesRouteWithChildren
   '/career-hub/$slug': typeof CareerHubSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/career-hub': typeof CareerHubRouteWithChildren
   '/categories': typeof CategoriesRoute
   '/contact': typeof ContactRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/services': typeof ServicesRouteWithChildren
   '/career-hub/$slug': typeof CareerHubSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/career-hub'
     | '/categories'
     | '/contact'
+    | '/privacy-policy'
     | '/services'
     | '/career-hub/$slug'
     | '/jobs/$jobId'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/career-hub'
     | '/categories'
     | '/contact'
+    | '/privacy-policy'
     | '/services'
     | '/career-hub/$slug'
     | '/jobs/$jobId'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/career-hub'
     | '/categories'
     | '/contact'
+    | '/privacy-policy'
     | '/services'
     | '/career-hub/$slug'
     | '/jobs/$jobId'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   CareerHubRoute: typeof CareerHubRouteWithChildren
   CategoriesRoute: typeof CategoriesRoute
   ContactRoute: typeof ContactRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   ServicesRoute: typeof ServicesRouteWithChildren
   JobsJobIdRoute: typeof JobsJobIdRoute
 }
@@ -180,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/services': {
@@ -243,6 +263,7 @@ const rootRouteChildren: RootRouteChildren = {
   CareerHubRoute: CareerHubRouteWithChildren,
   CategoriesRoute: CategoriesRoute,
   ContactRoute: ContactRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   ServicesRoute: ServicesRouteWithChildren,
   JobsJobIdRoute: JobsJobIdRoute,
 }

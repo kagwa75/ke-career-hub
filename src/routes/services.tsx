@@ -58,6 +58,25 @@ const trustPoints = [
   "Support tailored to your target opportunity",
 ];
 
+const serviceTrustPoints = [
+  {
+    title: "ATS-friendly documents",
+    text: "Clear, professional documents designed to be readable by applicant tracking systems.",
+  },
+  {
+    title: "Tailored to your target role",
+    text: "Your CV and career documents are aligned with the opportunity you're applying for.",
+  },
+  {
+    title: "Professional presentation",
+    text: "Clean, readable and recruiter-friendly formatting that presents your experience clearly.",
+  },
+  {
+    title: "Confidential handling",
+    text: "Your personal and career information is handled with care and confidentiality.",
+  },
+];
+
 function Services() {
   return (
     <>
@@ -72,8 +91,8 @@ function Services() {
               Practical support for your next career move.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-              From strengthening your CV to preparing for your next interview, get practical career
-              support designed to help you present yourself with confidence.
+              From building a stronger CV to preparing for your next interview, get practical career
+              support designed to help you compete with confidence.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg">
@@ -102,14 +121,14 @@ function Services() {
         </div>
       </section>
 
-      <section className="border-y border-border bg-surface py-16 sm:py-20">
+      <section className="border-y border-border bg-surface py-18 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="Pricing"
             title="Simple pricing. Practical support."
             copy="Choose the package that fits what you need."
           />
-          <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {servicePackages.map((item) => (
               <PackageCard key={item.id} item={item} />
             ))}
@@ -130,6 +149,27 @@ function Services() {
                 <p className="font-heading text-sm font-extrabold text-primary">{step.number}</p>
                 <h3 className="mt-4 font-heading text-lg font-bold">{step.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{step.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-border bg-surface py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            eyebrow="Trust"
+            title="Why choose Get Hired KE?"
+            copy="Practical career support designed around the opportunity you're pursuing."
+          />
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {serviceTrustPoints.map((point) => (
+              <div key={point.title} className="rounded-lg border border-border bg-card p-5">
+                <span className="flex size-9 items-center justify-center rounded-md bg-primary-soft text-primary">
+                  <Check className="size-5" />
+                </span>
+                <h3 className="mt-4 font-heading text-base font-bold">{point.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{point.text}</p>
               </div>
             ))}
           </div>
@@ -296,17 +336,22 @@ function ServiceCard({ service }: { service: CareerService }) {
 function PackageCard({ item }: { item: ServicePackage }) {
   return (
     <article
-      className={`relative flex h-full flex-col rounded-lg border bg-card p-5 transition duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-card ${item.popular ? "border-primary/40 shadow-card" : "border-border"}`}
+      className={`relative flex h-full flex-col rounded-lg border bg-card p-5 transition duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-card ${item.popular ? "border-primary/50 shadow-card ring-1 ring-primary/10" : "border-border"}`}
     >
       {item.popular && (
-        <span className="absolute right-4 top-4 rounded-full bg-highlight-soft px-2.5 py-1 text-xs font-bold uppercase text-highlight-strong">
+        <span className="absolute right-4 top-4 rounded-full bg-highlight px-2.5 py-1 text-xs font-extrabold uppercase text-highlight-foreground">
           Most Popular
         </span>
       )}
-      <h3 className="pr-24 font-heading text-sm font-extrabold uppercase tracking-wide text-muted-foreground">
+      <h3 className="pr-24 font-heading text-sm font-extrabold uppercase tracking-wide text-foreground">
         {item.title}
       </h3>
-      <p className="mt-4 font-heading text-3xl font-extrabold text-foreground">{item.price}</p>
+      <p className="mt-4 font-heading text-4xl font-extrabold leading-none text-primary">
+        {item.price}
+      </p>
+      <p className="mt-3 border-b border-border pb-4 text-sm font-semibold leading-5 text-muted-foreground">
+        Best for: {item.bestFor}
+      </p>
       <ul className="mt-5 space-y-2">
         {item.features.map((feature) => (
           <li key={feature} className="flex gap-2 text-sm leading-5 text-muted-foreground">

@@ -26,6 +26,7 @@ export type ServicePackage = {
   id: string;
   title: string;
   price: string;
+  bestFor: string;
   features: string[];
   cta: string;
   serviceSlug: string;
@@ -48,7 +49,7 @@ export const careerServices: CareerService[] = [
     ],
     cta: "Revamp My CV",
     pricingLabel: "From KSh 300",
-    pricingSubtext: "Packages available",
+    pricingSubtext: "Packages from KSh 300",
     featured: true,
     icon: FileCheck2,
   },
@@ -65,7 +66,7 @@ export const careerServices: CareerService[] = [
       "Employer-focused messaging",
     ],
     cta: "Get a Cover Letter",
-    pricingLabel: "Available from KSh 700 with CV + Cover Letter package",
+    pricingLabel: "Available in the KSh 700 CV + Cover Letter package",
     icon: FileText,
   },
   {
@@ -142,6 +143,7 @@ export const servicePackages: ServicePackage[] = [
     id: "basic-cv",
     title: "Basic CV",
     price: "KSh 300",
+    bestFor: "Simple CV update",
     features: ["ATS-friendly CV", "1 page"],
     cta: "Choose Basic CV",
     serviceSlug: "cv-revamp",
@@ -150,6 +152,7 @@ export const servicePackages: ServicePackage[] = [
     id: "professional-cv",
     title: "Professional CV",
     price: "KSh 500",
+    bestFor: "Job seekers who want a stronger CV",
     features: ["Well-structured CV", "Professional design", "1-2 pages"],
     cta: "Choose Professional CV",
     serviceSlug: "cv-revamp",
@@ -158,6 +161,7 @@ export const servicePackages: ServicePackage[] = [
     id: "cv-cover-letter",
     title: "CV + Cover Letter",
     price: "KSh 700",
+    bestFor: "Applying for a specific opportunity",
     features: ["Professional CV", "Customized cover letter"],
     cta: "Choose This Package",
     serviceSlug: "cover-letter",
@@ -167,6 +171,7 @@ export const servicePackages: ServicePackage[] = [
     id: "complete-package",
     title: "Complete Package",
     price: "KSh 1,000",
+    bestFor: "Building a complete professional profile",
     features: ["CV", "Cover Letter", "LinkedIn Profile Optimization"],
     cta: "Choose Complete Package",
     serviceSlug: "linkedin-optimization",

@@ -108,6 +108,9 @@ function ServiceDetail() {
                     )}
                   </div>
                   <p className="mt-4 font-heading text-3xl font-extrabold">{item.price}</p>
+                  <p className="mt-2 text-sm font-semibold leading-5 text-muted-foreground">
+                    Best for: {item.bestFor}
+                  </p>
                   <ul className="mt-4 space-y-2">
                     {item.features.map((feature) => (
                       <li
