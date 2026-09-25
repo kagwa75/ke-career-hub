@@ -1,0 +1,31 @@
+import { createFileRoute, redirect } from "@tanstack/react-router";
+
+import { AdminPageHeader } from "@/components/admin/admin-layout";
+import { JobForm } from "@/components/admin/job-form";
+import { getAdminJobEditor } from "@/lib/jobs/admin-actions.server";
+
+export const Route = createFileRoute("/admin/jobs/new")({
+  loader: async () => {
+    try {
+      return await getAdminJobEditor({ data: {} });
+    } catch (error) {
+      if (error instanceof Response && [401, 403].includes(error.status))
+        throw redirect({ to: "/admin/login" });
+      throw error;
+    }
+  },
+  component: NewJobPage,
+});
+
+function NewJobPage() {
+  const { categories, organizations } = Route.useLoaderData();
+  return (
+    <>
+      <AdminPageHeader
+        title="Create Job"
+        description="Create a draft, scheduled or published opportunity in Neon."
+      />
+      <JobForm categories={categories} organizations={organizations} />
+    </>
+  );
+}

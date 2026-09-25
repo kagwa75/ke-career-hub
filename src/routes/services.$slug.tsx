@@ -11,10 +11,15 @@ export const Route = createFileRoute("/services/$slug")({
   },
   head: ({ loaderData }) => ({
     meta: [
-      { title: `${loaderData.title} | Get Hired KE Services` },
-      { name: "description", content: loaderData.description },
-      { property: "og:title", content: `${loaderData.title} | Get Hired KE Services` },
-      { property: "og:description", content: loaderData.description },
+      {
+        title: `${loaderData?.title ?? "Career"} | Get Hired KE Services`,
+      },
+      { name: "description", content: loaderData?.description ?? "" },
+      {
+        property: "og:title",
+        content: `${loaderData?.title ?? "Career"} | Get Hired KE Services`,
+      },
+      { property: "og:description", content: loaderData?.description ?? "" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -66,7 +71,7 @@ function ServiceDetail() {
                   </Link>
                 </Button>
                 <Button asChild variant="secondary" size="lg">
-                  <Link to="/career-hub">Explore Career Hub</Link>
+                  <Link to="/career-hub" search={{ q: "" }}>Explore Career Hub</Link>
                 </Button>
               </div>
             </div>

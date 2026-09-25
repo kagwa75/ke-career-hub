@@ -16,7 +16,8 @@ import {
   type CareerArticle,
   type CareerCategory,
 } from "@/data/career-hub";
-import { jobs } from "@/data/jobs";
+import { getPublicHomeJobs } from "@/lib/jobs/public-actions.server";
+import type { Job } from "@/lib/jobs/types";
 
 export const Route = createFileRoute("/career-hub/$slug")({
   beforeLoad: ({ params }) => {
@@ -57,20 +58,22 @@ export const Route = createFileRoute("/career-hub/$slug")({
       links: [{ rel: "canonical", href: `/career-hub/${params.slug}` }],
     };
   },
+  loader: () => getPublicHomeJobs(),
   component: CareerHubSlugPage,
 });
 
 function CareerHubSlugPage() {
   const { slug } = Route.useParams();
+  const { jobs } = Route.useLoaderData();
   const article = getCareerArticle(slug);
   const category = getCareerCategory(slug);
 
-  if (article) return <ArticlePage article={article} />;
-  if (category) return <CategoryPage category={category} />;
+  if (article) return <ArticlePage article={article} jobs={jobs} />;
+  if (category) return <CategoryPage category={category} jobs={jobs} />;
   return null;
 }
 
-function CategoryPage({ category }: { category: CareerCategory }) {
+function CategoryPage({ category, jobs }: { category: CareerCategory; jobs: Job[] }) {
   const categoryArticles = getArticlesByCategory(category.slug);
   const featured = categoryArticles[0] ?? careerArticles[0]!;
   const latest = categoryArticles.slice(1, 7);
@@ -107,7 +110,7 @@ function CategoryPage({ category }: { category: CareerCategory }) {
           <SectionHeading eyebrow="Popular" title="Popular Articles" />
           <div className="mt-6 grid gap-3">
             {(popular.length ? popular : [featured]).map((item) => (
-              <Link key={item.id} to="/career-hub/$slug" params={{ slug: item.slug }} className="rounded-lg border border-border bg-card p-4 transition hover:border-primary/35 hover:shadow-card">
+              <Link key={item.id} to="/career-hub/$slug" params={{ slug: item.slug }} search={{ q: "" }} className="rounded-lg border border-border bg-card p-4 transition hover:border-primary/35 hover:shadow-card">
                 <p className="font-heading text-base font-bold">{item.title}</p>
                 <p className="mt-2 text-sm text-muted-foreground">{item.readingTime}</p>
               </Link>
@@ -123,7 +126,7 @@ function CategoryPage({ category }: { category: CareerCategory }) {
   );
 }
 
-function ArticlePage({ article }: { article: CareerArticle }) {
+function ArticlePage({ article, jobs }: { article: CareerArticle; jobs: Job[] }) {
   const category = careerCategories.find((item) => item.slug === article.category);
   const relatedArticles = getRelatedArticles(article);
   const relatedJobs = jobs.filter((job) => article.jobCta?.type === "all" || !article.jobCta ? true : job.sector === article.jobCta.type).slice(0, 3);
@@ -210,16 +213,16 @@ function ArticlePage({ article }: { article: CareerArticle }) {
   );
 }
 
-function Breadcrumb({ current, parent }: { current: string; parent?: CareerCategory }) {
+function Breadcrumb({ current, parent }: { current: string; parent?: CareerCategory | undefined }) {
   return (
     <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
       <Link to="/" search={{}} className="font-semibold hover:text-foreground">Home</Link>
       <ChevronRight className="size-4" />
-      <Link to="/career-hub" className="font-semibold hover:text-foreground">Career Hub</Link>
+      <Link to="/career-hub" search={{ q: "" }} className="font-semibold hover:text-foreground">Career Hub</Link>
       {parent && (
         <>
           <ChevronRight className="size-4" />
-          <Link to="/career-hub/$slug" params={{ slug: parent.slug }} className="font-semibold hover:text-foreground">{parent.title}</Link>
+          <Link to="/career-hub/$slug" params={{ slug: parent.slug }} search={{ q: "" }} className="font-semibold hover:text-foreground">{parent.title}</Link>
         </>
       )}
       <ChevronRight className="size-4" />

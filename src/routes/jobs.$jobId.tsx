@@ -11,32 +11,35 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/job-card";
-import { jobs } from "@/data/jobs";
+import { getPublicHomeJobs, getPublicJobDetails } from "@/lib/jobs/public-actions.server";
 
 export const Route = createFileRoute("/jobs/$jobId")({
-  loader: ({ params }) => {
-    const job = jobs.find((item) => item.id === params.jobId);
+  loader: async ({ params }) => {
+    const [job, listing] = await Promise.all([
+      getPublicJobDetails({ data: { jobId: params.jobId } }),
+      getPublicHomeJobs(),
+    ]);
     if (!job) throw notFound();
-    return job;
+    return { job, jobs: listing.jobs };
   },
   head: ({ loaderData }) => ({
     meta: [
       {
-        title: loaderData
-          ? `${loaderData.title} at ${loaderData.company} | Get Hired KE`
+        title: loaderData?.job
+          ? `${loaderData.job.title} at ${loaderData.job.company} | Get Hired KE`
           : "Job not found | Get Hired KE",
       },
       {
         name: "description",
-        content: loaderData?.summary ?? "Explore jobs and opportunities in Kenya.",
+        content: loaderData?.job.summary ?? "Explore jobs and opportunities in Kenya.",
       },
       {
         property: "og:title",
-        content: loaderData ? `${loaderData.title} at ${loaderData.company}` : "Job not found",
+        content: loaderData?.job ? `${loaderData.job.title} at ${loaderData.job.company}` : "Job not found",
       },
       {
         property: "og:description",
-        content: loaderData?.summary ?? "Explore jobs and opportunities in Kenya.",
+        content: loaderData?.job.summary ?? "Explore jobs and opportunities in Kenya.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -57,7 +60,7 @@ export const Route = createFileRoute("/jobs/$jobId")({
 });
 
 function JobDetails() {
-  const job = Route.useLoaderData();
+  const { job, jobs } = Route.useLoaderData();
   const sameCategory = jobs.filter((item) => item.id !== job.id && item.category === job.category);
   const related = (
     sameCategory.length ? sameCategory : jobs.filter((item) => item.id !== job.id)

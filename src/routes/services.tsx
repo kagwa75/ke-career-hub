@@ -8,7 +8,7 @@ import {
   type CareerService,
   type ServicePackage,
 } from "@/data/services";
-import { WHATSAPP_URL } from "@/data/jobs";
+import { WHATSAPP_URL } from "@/lib/jobs/types";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -101,7 +101,7 @@ function Services() {
                 </Link>
               </Button>
               <Button asChild variant="secondary" size="lg">
-                <Link to="/career-hub">Explore Career Hub</Link>
+                <Link to="/career-hub" search={{ q: "" }}>Explore Career Hub</Link>
               </Button>
             </div>
           </div>

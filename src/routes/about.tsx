@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { SectionHeading } from "@/components/career-hub/section-heading";
 import { Button } from "@/components/ui/button";
-import { WHATSAPP_URL } from "@/data/jobs";
+import { WHATSAPP_URL } from "@/lib/jobs/types";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -71,7 +71,7 @@ const workItems = [
     cta: "Join WhatsApp",
     href: WHATSAPP_URL,
   },
-];
+] as const;
 
 const sources = [
   "Official employer websites",
@@ -351,7 +351,7 @@ function About() {
               </Link>
             </Button>
             <Button asChild variant="secondary" size="lg">
-              <Link to="/career-hub">Explore Career Hub</Link>
+              <Link to="/career-hub" search={{ q: "" }}>Explore Career Hub</Link>
             </Button>
           </div>
         </div>

@@ -16,7 +16,7 @@ export function ArticleCard({ article, compact = false }: { article: CareerArtic
       <p className={`mt-3 text-sm leading-6 text-muted-foreground ${compact ? "line-clamp-2" : ""}`}>{article.excerpt}</p>
       <div className="mt-auto flex items-center justify-between gap-3 pt-5">
         <p className="text-xs font-semibold text-muted-foreground">{formatArticleDate(article.publishedAt)}</p>
-        <Link to="/career-hub/$slug" params={{ slug: article.slug }} className="inline-flex items-center gap-1.5 text-sm font-bold text-primary transition-colors hover:text-primary/80">
+        <Link to="/career-hub/$slug" params={{ slug: article.slug }} search={{ q: "" }} className="inline-flex items-center gap-1.5 text-sm font-bold text-primary transition-colors hover:text-primary/80">
           Read Guide <ArrowRight className="size-4" />
         </Link>
       </div>

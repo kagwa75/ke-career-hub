@@ -16,12 +16,12 @@ import {
   deadlineOptions,
   employmentTypes,
   experienceLevels,
-  jobs,
   locationOptions,
   opportunityTypes,
   WHATSAPP_URL,
   type Job,
-} from "@/data/jobs";
+} from "@/lib/jobs/types";
+import { getPublicJobsByFilters } from "@/lib/jobs/public-actions.server";
 
 type CategorySearch = {
   type: string;
@@ -67,20 +67,30 @@ export const Route = createFileRoute("/categories")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  loaderDeps: ({ search }) => search,
+  loader: ({ deps }) =>
+    getPublicJobsByFilters({
+      data: {
+        q: deps.q,
+        opportunityType: deps.type,
+        sort: deps.sort,
+      },
+    }),
   component: CategoriesPage,
 });
 
 const PAGE_SIZE = 9;
-const TODAY = new Date("2026-09-16T00:00:00Z");
 
 function daysToDeadline(job: Job) {
-  if (job.deadline === "Not specified") return Number.POSITIVE_INFINITY;
+  if (!job.deadlineISO) return Number.POSITIVE_INFINITY;
   return Math.round(
-    (new Date(`${job.deadlineISO}T00:00:00Z`).getTime() - TODAY.getTime()) / 86_400_000,
+    (new Date(job.deadlineISO).getTime() - Date.now()) / 86_400_000,
   );
 }
 
 function CategoriesPage() {
+  const loaderData = Route.useLoaderData();
+  const jobs = loaderData.jobs;
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/categories" });
   const [filtersOpen, setFiltersOpen] = useState(false);

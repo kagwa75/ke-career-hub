@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Clock3, MapPin } from "lucide-react";
-import type { Job } from "@/data/jobs";
+import type { Job } from "@/lib/jobs/types";
 
 export function JobCard({ job, compact = false }: { job: Job; compact?: boolean }) {
   return (

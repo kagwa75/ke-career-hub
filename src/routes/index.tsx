@@ -16,7 +16,8 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/job-card";
-import { categories, jobs, WHATSAPP_URL } from "@/data/jobs";
+import { WHATSAPP_URL, type Category, type Job } from "@/lib/jobs/types";
+import { getPublicHomeJobs } from "@/lib/jobs/public-actions.server";
 
 type SearchParams = { category?: string };
 
@@ -40,6 +41,7 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  loader: () => getPublicHomeJobs(),
   component: HomePage,
 });
 
@@ -53,6 +55,9 @@ const categoryIcons = {
 };
 
 function HomePage() {
+  const loaderData = Route.useLoaderData();
+  const jobs = loaderData.jobs;
+  const categories = withCategoryMeta(loaderData.categories, jobs);
   const routeSearch = Route.useSearch();
   const [keyword, setKeyword] = useState("");
   const [location, setLocation] = useState("");
@@ -310,4 +315,22 @@ function SectionHeading({
       <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">{copy}</p>
     </div>
   );
+}
+
+function withCategoryMeta(categories: Category[], jobs: Job[]) {
+  return categories.map((category) => ({
+    ...category,
+    icon: iconForCategory(category.name),
+    count: jobs.filter((job) => job.categoryId === category.id || job.category === category.name).length,
+  }));
+}
+
+function iconForCategory(name: string): keyof typeof categoryIcons {
+  const value = name.toLowerCase();
+  if (value.includes("tech")) return "code";
+  if (value.includes("finance")) return "wallet";
+  if (value.includes("health")) return "heart";
+  if (value.includes("sales") || value.includes("marketing")) return "megaphone";
+  if (value.includes("intern") || value.includes("graduate") || value.includes("college")) return "graduation";
+  return "briefcase";
 }

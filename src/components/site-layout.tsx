@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { BriefcaseBusiness, ChevronDown, Menu, MessageCircle, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { opportunityTypes, WHATSAPP_URL } from "@/data/jobs";
+import { opportunityTypes, WHATSAPP_URL } from "@/lib/jobs/types";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
@@ -185,7 +185,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
             <p className="font-heading text-sm font-bold">Explore</p>
             <div className="mt-3 flex flex-col gap-2 text-sm text-footer-muted">
               <Link to="/services">Services</Link>
-              <Link to="/career-hub">Career Hub</Link>
+              <Link to="/career-hub" search={{ q: "" }}>Career Hub</Link>
               <Link to="/about">About Us</Link>
             </div>
           </div>
@@ -193,6 +193,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
             <p className="font-heading text-sm font-bold">Legal</p>
             <div className="mt-3 flex flex-col gap-2 text-sm text-footer-muted">
               <Link to="/privacy-policy">Privacy Policy</Link>
+              <Link to="/terms-and-conditions">Terms & Conditions</Link>
             </div>
           </div>
           <div>

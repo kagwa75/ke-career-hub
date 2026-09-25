@@ -97,7 +97,7 @@ function CareerHub() {
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <SectionHeading eyebrow="Recently published" title="Latest Career Advice" copy="Fresh guidance for job seekers, students and professionals across Kenya." />
-          <Button asChild variant="secondary"><Link to="/career-hub/$slug" params={{ slug: "career-tips" }}>View All Guides <ArrowRight className="size-4" /></Link></Button>
+          <Button asChild variant="secondary"><Link to="/career-hub/$slug" params={{ slug: "career-tips" }} search={{ q: "" }}>View All Guides <ArrowRight className="size-4" /></Link></Button>
         </div>
         <div className="mt-8 grid gap-4 md:grid-cols-2">{latestArticles.map((article) => <ArticleCard key={article.id} article={article} compact />)}</div>
       </section>
@@ -114,7 +114,7 @@ function CareerHub() {
           <SectionHeading eyebrow="Popular" title="Popular With Job Seekers" copy="Guides that answer the questions many job seekers ask before they apply." />
           <div className="grid gap-3 sm:grid-cols-2">
             {popularArticles.map((article) => (
-              <Link key={article.id} to="/career-hub/$slug" params={{ slug: article.slug }} className="group rounded-lg border border-border bg-card p-4 transition hover:border-primary/35 hover:shadow-card">
+              <Link key={article.id} to="/career-hub/$slug" params={{ slug: article.slug }} search={{ q: "" }} className="group rounded-lg border border-border bg-card p-4 transition hover:border-primary/35 hover:shadow-card">
                 <p className="font-heading text-sm font-bold leading-5">{article.title}</p>
                 <p className="mt-2 text-xs text-muted-foreground">{article.readingTime}</p>
               </Link>

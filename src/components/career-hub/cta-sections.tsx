@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { BriefcaseBusiness, MessageCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { WHATSAPP_URL } from "@/data/jobs";
+import { WHATSAPP_URL } from "@/lib/jobs/types";
 
 const jobSearch = (type: string) => ({ type, q: "", location: "", employment: "", field: "", experience: "", deadline: "", sort: "newest", page: 1 });
 

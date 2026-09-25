@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { SectionHeading } from "@/components/career-hub/section-heading";
-import { WHATSAPP_URL } from "@/data/jobs";
+import { WHATSAPP_URL } from "@/lib/jobs/types";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -371,7 +371,7 @@ function Field({
 }: {
   id: string;
   label: string;
-  error?: string;
+  error?: string | undefined;
   children: ReactNode;
 }) {
   return (
