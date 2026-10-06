@@ -44,7 +44,7 @@ create table if not exists jobs (
   application_instructions text not null,
   source_name text not null,
   source_url text,
-  verification_status text not null default 'unverified',
+  verification_status text not null default 'pending',
   verified_at timestamptz,
   verified_by text,
   status text not null default 'draft',
@@ -57,7 +57,7 @@ create table if not exists jobs (
   created_by text,
   updated_by text,
   constraint jobs_status_check check (status in ('draft', 'scheduled', 'published', 'expired', 'archived')),
-  constraint jobs_verification_status_check check (verification_status in ('unverified', 'verified')),
+  constraint jobs_verification_status_check check (verification_status in ('pending', 'verified', 'rejected', 'unverified')),
   constraint jobs_application_method_check check (application_method in ('apply_online', 'email', 'employer_website', 'other'))
 );
 
@@ -89,5 +89,7 @@ values
   ('college-jobs', 'College Jobs', 'college-jobs'),
   ('county-jobs', 'County Jobs', 'county-jobs'),
   ('government-jobs', 'Government Jobs', 'government-jobs'),
-  ('ngo-jobs', 'NGO Jobs', 'ngo-jobs')
+  ('ngo-jobs', 'NGO Jobs', 'ngo-jobs'),
+  ('human-resources', 'Human Resources', 'human-resources'),
+  ('beauty-personal-care', 'Beauty & Personal Care', 'beauty-personal-care')
 on conflict (id) do nothing;

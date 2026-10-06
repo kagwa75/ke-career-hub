@@ -25,6 +25,7 @@ import { Route as CareerHubSlugRouteImport } from './routes/career-hub.$slug'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as AdminJobsJobIdRouteImport } from './routes/admin.jobs.$jobId'
+import { Route as AdminJobsImportRouteImport } from './routes/admin.jobs.import'
 import { Route as AdminJobsNewRouteImport } from './routes/admin.jobs.new'
 import { Route as AdminJobsJobIdEditRouteImport } from './routes/admin.jobs.$jobId.edit'
 
@@ -108,6 +109,11 @@ const AdminJobsJobIdRoute = AdminJobsJobIdRouteImport.update({
   path: '/$jobId',
   getParentRoute: () => AdminJobsRoute,
 } as any)
+const AdminJobsImportRoute = AdminJobsImportRouteImport.update({
+  id: '/import',
+  path: '/import',
+  getParentRoute: () => AdminJobsRoute,
+} as any)
 const AdminJobsNewRoute = AdminJobsNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/services/$slug': typeof ServicesSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/jobs/$jobId': typeof AdminJobsJobIdRouteWithChildren
+  '/admin/jobs/import': typeof AdminJobsImportRoute
   '/admin/jobs/new': typeof AdminJobsNewRoute
   '/admin/jobs/$jobId/edit': typeof AdminJobsJobIdEditRoute
 }
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/services/$slug': typeof ServicesSlugRoute
   '/admin': typeof AdminIndexRoute
   '/admin/jobs/$jobId': typeof AdminJobsJobIdRouteWithChildren
+  '/admin/jobs/import': typeof AdminJobsImportRoute
   '/admin/jobs/new': typeof AdminJobsNewRoute
   '/admin/jobs/$jobId/edit': typeof AdminJobsJobIdEditRoute
 }
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/services/$slug': typeof ServicesSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/jobs/$jobId': typeof AdminJobsJobIdRouteWithChildren
+  '/admin/jobs/import': typeof AdminJobsImportRoute
   '/admin/jobs/new': typeof AdminJobsNewRoute
   '/admin/jobs/$jobId/edit': typeof AdminJobsJobIdEditRoute
 }
@@ -198,6 +207,7 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/admin/'
     | '/admin/jobs/$jobId'
+    | '/admin/jobs/import'
     | '/admin/jobs/new'
     | '/admin/jobs/$jobId/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/admin'
     | '/admin/jobs/$jobId'
+    | '/admin/jobs/import'
     | '/admin/jobs/new'
     | '/admin/jobs/$jobId/edit'
   id:
@@ -237,6 +248,7 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/admin/'
     | '/admin/jobs/$jobId'
+    | '/admin/jobs/import'
     | '/admin/jobs/new'
     | '/admin/jobs/$jobId/edit'
   fileRoutesById: FileRoutesById
@@ -368,6 +380,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminJobsJobIdRouteImport
       parentRoute: typeof AdminJobsRoute
     }
+    '/admin/jobs/import': {
+      id: '/admin/jobs/import'
+      path: '/import'
+      fullPath: '/admin/jobs/import'
+      preLoaderRoute: typeof AdminJobsImportRouteImport
+      parentRoute: typeof AdminJobsRoute
+    }
     '/admin/jobs/new': {
       id: '/admin/jobs/new'
       path: '/new'
@@ -399,11 +418,13 @@ const AdminJobsJobIdRouteWithChildren = AdminJobsJobIdRoute._addFileChildren(
 
 interface AdminJobsRouteChildren {
   AdminJobsJobIdRoute: typeof AdminJobsJobIdRouteWithChildren
+  AdminJobsImportRoute: typeof AdminJobsImportRoute
   AdminJobsNewRoute: typeof AdminJobsNewRoute
 }
 
 const AdminJobsRouteChildren: AdminJobsRouteChildren = {
   AdminJobsJobIdRoute: AdminJobsJobIdRouteWithChildren,
+  AdminJobsImportRoute: AdminJobsImportRoute,
   AdminJobsNewRoute: AdminJobsNewRoute,
 }
 

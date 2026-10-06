@@ -17,9 +17,9 @@ export function JobCard({ job, compact = false }: { job: Job; compact?: boolean 
         </div>
         {job.featured && <span className="rounded-full bg-highlight-soft px-2.5 py-1 text-xs font-bold text-highlight-strong">Featured</span>}
       </div>
-      {!compact && <p className="mt-4 line-clamp-2 text-sm leading-6 text-muted-foreground">{job.summary}</p>}
+      {!compact && job.summary && <p className="mt-4 line-clamp-2 text-sm leading-6 text-muted-foreground">{job.summary}</p>}
       <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5"><MapPin className="size-4 text-primary" />{job.location}</span>
+        <span className="inline-flex items-center gap-1.5"><MapPin className="size-4 text-primary" />{job.location || "Location not specified"}</span>
         <span className="inline-flex items-center gap-1.5"><Clock3 className="size-4 text-primary" />{job.type}</span>
       </div>
       <div className="mt-auto flex items-end justify-between gap-3 border-t border-border pt-4">

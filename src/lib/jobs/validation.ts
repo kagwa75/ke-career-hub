@@ -20,7 +20,15 @@ const optionalDeadline = z
   .optional()
   .transform((value) => (typeof value === "string" ? value.trim() || null : null));
 
-const nonEmptyList = z.array(z.string().trim().min(1)).min(1);
+const optionalContent = z
+  .union([z.string(), z.null()])
+  .optional()
+  .transform((value) => (typeof value === "string" ? value.trim() || null : null));
+
+const optionalList = z
+  .array(z.string().trim())
+  .max(100)
+  .transform((items) => items.filter(Boolean));
 
 export const jobFormSchema = z
   .object({
@@ -29,7 +37,7 @@ export const jobFormSchema = z
     title: z.string().trim().min(3, "Add a job title."),
     organizationId: z.string().trim().optional(),
     organizationName: z.string().trim().min(2, "Select or add an organization."),
-    location: z.string().trim().min(2, "Add a location."),
+    location: optionalContent,
     county: z.string().trim().optional(),
     opportunityType: z.string().trim().min(1, "Choose an opportunity type."),
     categoryId: z.string().trim().min(1, "Choose a category."),
@@ -37,18 +45,19 @@ export const jobFormSchema = z
     experienceLevel: z.string().trim().optional(),
     employmentType: z.string().trim().optional(),
     salary: z.string().trim().optional(),
-    summary: z.string().trim().min(20, "Add a useful summary."),
+    summary: optionalContent,
     description: z.string().trim().optional(),
-    responsibilities: nonEmptyList,
-    requirements: nonEmptyList,
+    responsibilities: optionalList,
+    requirements: optionalList,
     qualifications: z.string().trim().optional(),
     applicationMethod: z.enum(["apply_online", "email", "employer_website", "other"]),
     applicationUrl: optionalUrl,
     applicationEmail: optionalEmail,
+    applicationPhone: z.string().trim().optional(),
     applicationInstructions: z.string().trim().min(10, "Add application instructions."),
     sourceName: z.string().trim().min(2, "Add the source name."),
     sourceUrl: optionalUrl,
-    verificationStatus: z.enum(["unverified", "verified"]),
+    verificationStatus: z.enum(["pending", "verified", "rejected"]),
     verifiedAt: z.string().trim().optional(),
     verifiedBy: z.string().trim().optional(),
     status: z.enum(jobStatuses),

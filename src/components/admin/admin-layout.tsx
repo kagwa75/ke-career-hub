@@ -6,6 +6,7 @@ import {
   Plus,
   Rows3,
   ExternalLink,
+  Sparkles,
 } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -16,6 +17,7 @@ import { Toaster } from "@/components/ui/sonner";
 const items = [
   { label: "Dashboard", to: "/admin", icon: LayoutDashboard },
   { label: "Jobs", to: "/admin/jobs", icon: Rows3 },
+  { label: "Quick Import", to: "/admin/jobs/import", icon: Sparkles },
   { label: "Create Job", to: "/admin/jobs/new", icon: Plus },
 ] as const;
 

@@ -24,7 +24,16 @@ import type { z } from "zod";
 import { jobFormSchema } from "@/lib/jobs/validation";
 
 type ApplicationMethod = z.infer<typeof jobFormSchema>["applicationMethod"];
-type FormState = Omit<JobFormInput, "applicationMethod"> & { applicationMethod: ApplicationMethod };
+type FormState = Omit<
+  JobFormInput,
+  "applicationMethod" | "location" | "summary" | "responsibilities" | "requirements"
+> & {
+  applicationMethod: ApplicationMethod;
+  location: string;
+  summary: string;
+  responsibilities: string[];
+  requirements: string[];
+};
 
 export function JobForm({
   job,
@@ -96,7 +105,7 @@ export function JobForm({
           <datalist id="organizations">{organizationOptions.map((name) => <option key={name} value={name} />)}</datalist>
         </Field>
         <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Location"><Input value={form.location} onChange={(event) => set("location", event.target.value)} /></Field>
+          <Field label="Location (optional)"><Input value={form.location} onChange={(event) => set("location", event.target.value)} /></Field>
           <Field label="County"><Input value={form.county ?? ""} onChange={(event) => set("county", event.target.value)} /></Field>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
@@ -134,15 +143,15 @@ export function JobForm({
       </Section>
 
       <Section title="Content">
-        <Field label="Summary"><Textarea value={form.summary} onChange={(event) => set("summary", event.target.value)} /></Field>
+        <Field label="Summary (optional)"><Textarea value={form.summary} onChange={(event) => set("summary", event.target.value)} /></Field>
         <Field label="Description"><Textarea value={form.description ?? ""} onChange={(event) => set("description", event.target.value)} /></Field>
-        <ListField label="Responsibilities" items={form.responsibilities} onChange={(items) => set("responsibilities", items)} />
-        <ListField label="Requirements" items={form.requirements} onChange={(items) => set("requirements", items)} />
-        <Field label="Qualifications"><Textarea value={form.qualifications ?? ""} onChange={(event) => set("qualifications", event.target.value)} /></Field>
+        <ListField label="Responsibilities (optional)" items={form.responsibilities} onChange={(items) => set("responsibilities", items)} />
+        <ListField label="Requirements (optional)" items={form.requirements} onChange={(items) => set("requirements", items)} />
+        <Field label="Qualifications (optional)"><Textarea value={form.qualifications ?? ""} onChange={(event) => set("qualifications", event.target.value)} /></Field>
       </Section>
 
       <Section title="Application">
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4">
           <Field label="Application method">
             <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={form.applicationMethod} onChange={(event) => set("applicationMethod", event.target.value as ApplicationMethod)}>
               <option value="apply_online">Apply Online</option>
@@ -153,6 +162,7 @@ export function JobForm({
           </Field>
           <Field label="Application URL"><Input value={form.applicationUrl ?? ""} onChange={(event) => set("applicationUrl", event.target.value)} /></Field>
           <Field label="Application email"><Input value={form.applicationEmail ?? ""} onChange={(event) => set("applicationEmail", event.target.value)} /></Field>
+          <Field label="Application phone"><Input value={form.applicationPhone ?? ""} onChange={(event) => set("applicationPhone", event.target.value)} /></Field>
         </div>
         <Field label="Application instructions"><Textarea value={form.applicationInstructions} onChange={(event) => set("applicationInstructions", event.target.value)} /></Field>
       </Section>
@@ -165,8 +175,9 @@ export function JobForm({
         <div className="grid gap-4 md:grid-cols-3">
           <Field label="Verification status">
             <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={form.verificationStatus} onChange={(event) => set("verificationStatus", event.target.value as FormState["verificationStatus"])}>
-              <option value="unverified">Unverified</option>
+              <option value="pending">Pending</option>
               <option value="verified">Verified</option>
+              <option value="rejected">Rejected</option>
             </select>
           </Field>
           <Field label="Verified at"><Input type="datetime-local" value={toLocalInput(form.verifiedAt)} onChange={(event) => set("verifiedAt", event.target.value)} /></Field>
@@ -276,10 +287,11 @@ function toFormState(job: Job | null | undefined, fallbackCategoryId: string): F
       applicationMethod: "apply_online",
       applicationUrl: "",
       applicationEmail: "",
+      applicationPhone: "",
       applicationInstructions: "",
       sourceName: "",
       sourceUrl: "",
-      verificationStatus: "unverified",
+      verificationStatus: "pending",
       verifiedAt: "",
       verifiedBy: "",
       status: "draft",
@@ -312,6 +324,7 @@ function toFormState(job: Job | null | undefined, fallbackCategoryId: string): F
     applicationMethod: job.applicationMethod as ApplicationMethod,
     applicationUrl: job.applicationUrl,
     applicationEmail: job.applicationEmail,
+    applicationPhone: job.applicationPhone,
     applicationInstructions: job.applicationInstructions,
     sourceName: job.source,
     sourceUrl: job.sourceUrl,

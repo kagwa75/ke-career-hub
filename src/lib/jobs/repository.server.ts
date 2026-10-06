@@ -17,7 +17,7 @@ type JobRow = {
   title: string;
   organization_id: string | null;
   organization_name: string;
-  location: string;
+  location: string | null;
   county: string | null;
   opportunity_type: string;
   category_id: string | null;
@@ -26,7 +26,7 @@ type JobRow = {
   experience_level: string | null;
   employment_type: string | null;
   salary: string | null;
-  summary: string;
+  summary: string | null;
   description: string | null;
   responsibilities: string[] | string | null;
   requirements: string[] | string | null;
@@ -34,19 +34,20 @@ type JobRow = {
   application_method: string;
   application_url: string | null;
   application_email: string | null;
+  application_phone: string | null;
   application_instructions: string;
   source_name: string;
   source_url: string | null;
-  verification_status: "unverified" | "verified";
-  verified_at: string | null;
+  verification_status: "pending" | "verified" | "rejected";
+  verified_at: string | Date | null;
   verified_by: string | null;
   status: Job["status"];
   featured: boolean;
-  publish_date: string | null;
-  scheduled_for: string | null;
-  deadline: string | null;
-  created_at: string;
-  updated_at: string;
+  publish_date: string | Date | null;
+  scheduled_for: string | Date | null;
+  deadline: string | Date | null;
+  created_at: string | Date;
+  updated_at: string | Date;
 };
 
 type CountRow = {
@@ -85,6 +86,53 @@ export async function ensureOrganization(name: string) {
     returning id
   `;
   return (rows as { id: string }[])[0]?.id ?? id;
+}
+
+async function getOrganizationId(organizationId: string) {
+  const rows = await sql`select id from organizations where id = ${organizationId} limit 1`;
+  const id = (rows as { id: string }[])[0]?.id;
+  if (!id) throw new Error("Selected organization does not exist.");
+  return id;
+}
+
+export async function findPossibleJobDuplicate(candidate: {
+  title: string;
+  organizationName?: string | null;
+  sourceUrl?: string | null;
+}) {
+  const titleKey = candidate.title.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
+  if (!titleKey) return null;
+  const sourceUrl = candidate.sourceUrl?.trim() || null;
+  const organizationName = candidate.organizationName?.trim() || null;
+  const rows = await sql`
+    select id, title, organization_name, status, source_url
+    from jobs
+    where lower(regexp_replace(title, '[^[:alnum:]]+', '', 'g')) = ${titleKey}
+      and (
+        (${organizationName}::text is not null and lower(organization_name) = lower(${organizationName}))
+        or (${sourceUrl}::text is not null and source_url = ${sourceUrl})
+      )
+    order by updated_at desc
+    limit 1
+  `;
+  const row = (
+    rows as {
+      id: string;
+      title: string;
+      organization_name: string;
+      status: string;
+      source_url: string | null;
+    }[]
+  )[0];
+  return row
+    ? {
+        id: row.id,
+        title: row.title,
+        organizationName: row.organization_name,
+        status: row.status,
+        sourceUrl: row.source_url,
+      }
+    : null;
 }
 
 export async function getCategoryName(categoryId: string) {
@@ -126,7 +174,7 @@ export async function getPublishedJobByIdOrSlug(idOrSlug: string): Promise<Job |
       and (id = ${idOrSlug} or slug = ${idOrSlug})
     limit 1
   `;
-  return ((rows as JobRow[]).map(mapJobRow)[0]) ?? null;
+  return (rows as JobRow[]).map(mapJobRow)[0] ?? null;
 }
 
 export async function listPublishedJobsByFilters(filters: AdminJobFilters): Promise<Job[]> {
@@ -134,9 +182,23 @@ export async function listPublishedJobsByFilters(filters: AdminJobFilters): Prom
   const term = filters.q?.trim().toLowerCase();
   return jobs
     .filter((job) => {
-      if (filters.opportunityType && filters.opportunityType !== "all" && job.sector !== filters.opportunityType) return false;
-      if (filters.categoryId && job.categoryId !== filters.categoryId && job.category !== filters.categoryId) return false;
-      if (term && !`${job.title} ${job.company} ${job.location} ${job.summary}`.toLowerCase().includes(term)) return false;
+      if (
+        filters.opportunityType &&
+        filters.opportunityType !== "all" &&
+        job.sector !== filters.opportunityType
+      )
+        return false;
+      if (
+        filters.categoryId &&
+        job.categoryId !== filters.categoryId &&
+        job.category !== filters.categoryId
+      )
+        return false;
+      if (
+        term &&
+        !`${job.title} ${job.company} ${job.location} ${job.summary}`.toLowerCase().includes(term)
+      )
+        return false;
       return true;
     })
     .sort((a, b) => sortJobs(a, b, filters.sort));
@@ -152,13 +214,29 @@ export async function listAdminJobs(filters: AdminJobFilters = {}): Promise<Job[
   return (rows as JobRow[])
     .map(mapJobRow)
     .filter((job) => {
-      if (term && !`${job.title} ${job.company} ${job.location}`.toLowerCase().includes(term)) return false;
+      if (term && !`${job.title} ${job.company} ${job.location}`.toLowerCase().includes(term))
+        return false;
       if (filters.status && filters.status !== "all" && job.status !== filters.status) return false;
-      if (filters.categoryId && filters.categoryId !== "all" && job.categoryId !== filters.categoryId) return false;
-      if (filters.opportunityType && filters.opportunityType !== "all" && job.opportunityType !== filters.opportunityType) return false;
+      if (
+        filters.categoryId &&
+        filters.categoryId !== "all" &&
+        job.categoryId !== filters.categoryId
+      )
+        return false;
+      if (
+        filters.opportunityType &&
+        filters.opportunityType !== "all" &&
+        job.opportunityType !== filters.opportunityType
+      )
+        return false;
       if (filters.featured === "true" && !job.featured) return false;
       if (filters.featured === "false" && job.featured) return false;
-      if (filters.deadlineState && filters.deadlineState !== "all" && job.deadlineState !== filters.deadlineState) return false;
+      if (
+        filters.deadlineState &&
+        filters.deadlineState !== "all" &&
+        job.deadlineState !== filters.deadlineState
+      )
+        return false;
       return true;
     })
     .sort((a, b) => sortJobs(a, b, filters.sort));
@@ -168,7 +246,7 @@ export async function getAdminJob(id: string): Promise<Job | null> {
   const rows = await sql`
     select * from jobs where id = ${id} or slug = ${id} limit 1
   `;
-  return ((rows as JobRow[]).map(mapJobRow)[0]) ?? null;
+  return (rows as JobRow[]).map(mapJobRow)[0] ?? null;
 }
 
 export async function getAdminSummary() {
@@ -197,34 +275,50 @@ export async function getAdminSummary() {
   };
 }
 
-export async function upsertJob(input: JobFormInput, actorId: string) {
+export async function upsertJob(
+  input: JobFormInput,
+  actorId: string,
+  options: { createOrganization?: boolean } = {},
+) {
   const categoryName = await getCategoryName(input.categoryId);
   if (!categoryName) {
     throw new Error("Selected category does not exist.");
   }
 
-  const organizationId = await ensureOrganization(input.organizationName);
+  const organizationId = input.organizationId
+    ? await getOrganizationId(input.organizationId)
+    : options.createOrganization === false ||
+        input.organizationName === "Organization not specified"
+      ? null
+      : await ensureOrganization(input.organizationName);
   const id = input.id || crypto.randomUUID();
   const slug = input.slug || (await uniqueJobSlug(input.title, id));
-  const publishedAt = input.status === "published" ? input.publishDate || new Date().toISOString() : input.publishDate || null;
+  const publishedAt =
+    input.status === "published"
+      ? input.publishDate || new Date().toISOString()
+      : input.publishDate || null;
+  const responsibilities = input.responsibilities?.map((item) => item.trim()).filter(Boolean) ?? [];
+  const requirements = input.requirements?.map((item) => item.trim()).filter(Boolean) ?? [];
+  const qualifications = input.qualifications?.trim() || null;
 
   await sql`
     insert into jobs (
       id, slug, title, organization_id, organization_name, location, county,
       opportunity_type, category_id, category_name, field, experience_level,
       employment_type, salary, summary, description, responsibilities, requirements,
-      qualifications, application_method, application_url, application_email,
+      qualifications, application_method, application_url, application_email, application_phone,
       application_instructions, source_name, source_url, verification_status,
       verified_at, verified_by, status, featured, publish_date, scheduled_for,
       deadline, created_by, updated_by
     )
     values (
-      ${id}, ${slug}, ${input.title}, ${organizationId}, ${input.organizationName}, ${input.location}, ${input.county || null},
+      ${id}, ${slug}, ${input.title}, ${organizationId}, ${input.organizationName}, ${input.location || null}, ${input.county || null},
       ${input.opportunityType}, ${input.categoryId}, ${categoryName}, ${input.field || null}, ${input.experienceLevel || null},
-      ${input.employmentType || null}, ${input.salary || null}, ${input.summary}, ${input.description || null},
-      ARRAY(SELECT jsonb_array_elements_text(${JSON.stringify(input.responsibilities)}::jsonb)),
-      ARRAY(SELECT jsonb_array_elements_text(${JSON.stringify(input.requirements)}::jsonb)),
-      ARRAY[${input.qualifications || ""}]::text[], ${input.applicationMethod}, ${input.applicationUrl || null}, ${input.applicationEmail || null},
+      ${input.employmentType || null}, ${input.salary || null}, ${input.summary || null}, ${input.description || null},
+      case when ${responsibilities.length} = 0 then null::text[] else ARRAY(SELECT jsonb_array_elements_text(${JSON.stringify(responsibilities)}::jsonb)) end,
+      case when ${requirements.length} = 0 then null::text[] else ARRAY(SELECT jsonb_array_elements_text(${JSON.stringify(requirements)}::jsonb)) end,
+      case when ${qualifications}::text is null then null::text[] else ARRAY[${qualifications}::text] end,
+      ${input.applicationMethod}, ${input.applicationUrl || null}, ${input.applicationEmail || null}, ${input.applicationPhone || null},
       ${input.applicationInstructions}, ${input.sourceName}, ${input.sourceUrl || null}, ${input.verificationStatus},
       ${input.verifiedAt || null}, ${input.verifiedBy || null}, ${input.status}, ${input.featured}, ${publishedAt},
       ${input.scheduledFor || null}, ${input.deadline}, ${actorId}, ${actorId}
@@ -250,6 +344,7 @@ export async function upsertJob(input: JobFormInput, actorId: string) {
       application_method = excluded.application_method,
       application_url = excluded.application_url,
       application_email = excluded.application_email,
+      application_phone = excluded.application_phone,
       application_instructions = excluded.application_instructions,
       source_name = excluded.source_name,
       source_url = excluded.source_url,
@@ -273,13 +368,16 @@ export async function updateJobStatus(id: string, status: Job["status"], actorId
     update jobs
     set status = ${status},
         publish_date = case when ${status} = 'published' and publish_date is null then now() else publish_date end,
+        verification_status = case when ${status} = 'published' then 'verified' else verification_status end,
+        verified_at = case when ${status} = 'published' then now() else verified_at end,
+        verified_by = case when ${status} = 'published' then ${actorId} else verified_by end,
         updated_by = ${actorId},
         updated_at = now()
     where id = ${id}
       and (
         ${status} <> 'published'
         or (
-          verification_status = 'verified'
+          verification_status in ('pending', 'verified')
           and (deadline is null or deadline > now())
           and (scheduled_for is null or scheduled_for <= now())
           and (
@@ -298,7 +396,36 @@ export async function updateJobStatus(id: string, status: Job["status"], actorId
       throw new Response("Job not found", { status: 404 });
     }
     if (status === "published") {
-      throw new Response("This job does not meet the requirements for publishing.", { status: 409 });
+      const details = await sql`
+        select verification_status, application_method, application_url, application_email,
+          deadline, scheduled_for
+        from jobs where id = ${id} limit 1
+      `;
+      const job = (details as {
+        verification_status: string;
+        application_method: string;
+        application_url: string | null;
+        application_email: string | null;
+        deadline: string | Date | null;
+        scheduled_for: string | Date | null;
+      }[])[0];
+      let reason = "This job does not meet the requirements for publishing.";
+      if (job?.verification_status === "rejected") {
+        reason = "This opportunity was rejected during verification and cannot be published.";
+      } else if (job?.deadline && new Date(job.deadline).getTime() <= Date.now()) {
+        reason = "This opportunity’s deadline has passed. Update the deadline before publishing.";
+      } else if (
+        job &&
+        (((job.application_method === "apply_online" ||
+          job.application_method === "employer_website") &&
+          !job.application_url) ||
+          (job.application_method === "email" && !job.application_email))
+      ) {
+        reason = "Add a valid application URL or email address before publishing.";
+      }
+      throw new Response(reason, {
+        status: 409,
+      });
     }
   }
 }
@@ -316,16 +443,18 @@ export async function listPublications(jobId: string): Promise<JobPublication[]>
     where job_id = ${jobId}
     order by published_at desc
   `;
-  return (rows as {
-    id: string;
-    job_id: string;
-    platform: JobPublication["platform"];
-    format: string;
-    context: string | null;
-    content: string | null;
-    status: string;
-    published_at: string;
-  }[]).map((row) => ({
+  return (
+    rows as {
+      id: string;
+      job_id: string;
+      platform: JobPublication["platform"];
+      format: string;
+      context: string | null;
+      content: string | null;
+      status: string;
+      published_at: string;
+    }[]
+  ).map((row) => ({
     id: row.id,
     jobId: row.job_id,
     platform: row.platform,
@@ -337,7 +466,12 @@ export async function listPublications(jobId: string): Promise<JobPublication[]>
   }));
 }
 
-export async function recordPublication(jobId: string, platform: JobPublication["platform"], content: string, context = "original") {
+export async function recordPublication(
+  jobId: string,
+  platform: JobPublication["platform"],
+  content: string,
+  context = "original",
+) {
   await sql`
     insert into job_publications (id, job_id, platform, format, context, content, status, metadata)
     values (${crypto.randomUUID()}, ${jobId}, ${platform}, 'social_post', ${context}, ${content}, 'published', ${JSON.stringify({ source: "admin" })}::jsonb)
@@ -349,12 +483,17 @@ async function countWhere(status: string) {
 }
 
 function toCount(rows: unknown) {
-  return Number(((rows as CountRow[])[0]?.total) ?? 0);
+  return Number((rows as CountRow[])[0]?.total ?? 0);
 }
 
 function mapJobRow(row: JobRow): Job {
-  const deadlineISO = row.deadline ? new Date(row.deadline).toISOString() : "";
-  const postedISO = new Date(row.publish_date ?? row.created_at).toISOString();
+  const deadlineISO = toTimestampISO(row.deadline) ?? "";
+  const publishDate = toTimestampISO(row.publish_date);
+  const scheduledFor = toTimestampISO(row.scheduled_for);
+  const createdAt = toTimestampISO(row.created_at) ?? "";
+  const updatedAt = toTimestampISO(row.updated_at) ?? createdAt;
+  const verifiedAtISO = toTimestampISO(row.verified_at);
+  const postedISO = publishDate ?? createdAt;
   const company = row.organization_name;
   const job = {
     id: row.id,
@@ -362,7 +501,7 @@ function mapJobRow(row: JobRow): Job {
     title: row.title,
     company,
     organizationId: row.organization_id,
-    location: row.location,
+    location: row.location ?? "",
     county: row.county ?? "",
     category: row.category_name,
     categoryId: row.category_id,
@@ -373,14 +512,14 @@ function mapJobRow(row: JobRow): Job {
     deadline: formatDate(deadlineISO) || "Not specified",
     featured: row.featured,
     initials: initials(company),
-    summary: row.summary,
+    summary: row.summary ?? "",
     description: row.description ?? "",
     responsibilities: toStringArray(row.responsibilities),
     requirements: toStringArray(row.requirements),
     qualifications: toStringArray(row.qualifications).join("\n"),
     sector: row.opportunity_type,
     employment: row.employment_type ?? "",
-    region: row.county || row.location,
+    region: row.county || row.location || "Not specified",
     field: row.field ?? "",
     experience: row.experience_level ?? "",
     deadlineISO,
@@ -389,21 +528,28 @@ function mapJobRow(row: JobRow): Job {
     sourceUrl: row.source_url ?? "",
     applicationUrl: row.application_url ?? "",
     applicationEmail: row.application_email ?? "",
+    applicationPhone: row.application_phone ?? "",
     applicationMethod: row.application_method,
-    verifiedAt: formatDate(row.verified_at),
-    verifiedAtISO: row.verified_at ?? undefined,
+    verifiedAt: formatDate(verifiedAtISO),
+    ...(verifiedAtISO ? { verifiedAtISO } : {}),
     verifiedBy: row.verified_by ?? "",
     verificationStatus: row.verification_status,
     applicationInstructions: row.application_instructions,
     status: row.status,
-    publishDate: row.publish_date,
-    scheduledFor: row.scheduled_for,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    publishDate,
+    scheduledFor,
+    createdAt,
+    updatedAt,
     deadlineState: "active",
   } satisfies Job;
 
   return { ...job, deadlineState: getDeadlineState(job) };
+}
+
+function toTimestampISO(value: string | Date | null) {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
 function toStringArray(value: JobRow["requirements"]) {

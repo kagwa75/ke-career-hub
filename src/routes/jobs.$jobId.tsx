@@ -102,7 +102,7 @@ function JobDetails() {
             </Button>
           </div>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Meta icon={MapPin} text={job.location} />
+            <Meta icon={MapPin} text={job.location || "Location not specified"} />
             <Meta icon={BriefcaseBusiness} text={job.type} />
             <Meta icon={Clock3} text={job.posted} />
             <Meta
@@ -118,12 +118,20 @@ function JobDetails() {
       </section>
       <section className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1fr_320px] lg:px-8">
         <article className="space-y-10">
-          <div>
-            <h2 className="font-heading text-2xl font-extrabold">About the role</h2>
-            <p className="mt-4 leading-7 text-muted-foreground">{job.summary}</p>
-          </div>
+          {(job.summary || job.description) && (
+            <div>
+              <h2 className="font-heading text-2xl font-extrabold">About the role</h2>
+              <p className="mt-4 leading-7 text-muted-foreground">
+                {job.summary || job.description}
+              </p>
+            </div>
+          )}
           <DetailList title="What you’ll do" items={job.responsibilities} />
           <DetailList title="What you’ll bring" items={job.requirements} />
+          <DetailList
+            title="Qualifications"
+            items={job.qualifications.split("\n").filter(Boolean)}
+          />
           <div>
             <h2 className="font-heading text-2xl font-extrabold">How to apply</h2>
             <p className="mt-4 leading-7 text-muted-foreground">{job.applicationInstructions}</p>
@@ -191,6 +199,7 @@ function Meta({ icon: Icon, text }: { icon: typeof MapPin; text: string }) {
   );
 }
 function DetailList({ title, items }: { title: string; items: string[] }) {
+  if (!items.length) return null;
   return (
     <div>
       <h2 className="font-heading text-2xl font-extrabold">{title}</h2>
