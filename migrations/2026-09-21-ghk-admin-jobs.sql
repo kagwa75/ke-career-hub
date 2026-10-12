@@ -91,5 +91,6 @@ values
   ('government-jobs', 'Government Jobs', 'government-jobs'),
   ('ngo-jobs', 'NGO Jobs', 'ngo-jobs'),
   ('human-resources', 'Human Resources', 'human-resources'),
-  ('beauty-personal-care', 'Beauty & Personal Care', 'beauty-personal-care')
+  ('beauty-personal-care', 'Beauty & Personal Care', 'beauty-personal-care'),
+  ('manufacturing-production', 'Manufacturing & Production', 'manufacturing-production')
 on conflict (id) do nothing;
