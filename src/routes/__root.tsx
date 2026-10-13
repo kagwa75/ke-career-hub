@@ -84,7 +84,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Find jobs, internships and career opportunities across Kenya." },
       { name: "author", content: "Get Hired KE" },
       { property: "og:type", content: "website" },
+      { property: "og:title", content: "Get Hired KE | Jobs in Kenya" },
+      {
+        property: "og:description",
+        content: "Find jobs, internships and career opportunities across Kenya.",
+      },
+      {
+        property: "og:image",
+        content: "https://gethired.bermudaappstudios.online/social-preview.png",
+      },
+      { property: "og:image:width", content: "1734" },
+      { property: "og:image:height", content: "907" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Get Hired KE | Jobs in Kenya" },
+      {
+        name: "twitter:description",
+        content: "Find jobs, internships and career opportunities across Kenya.",
+      },
+      {
+        name: "twitter:image",
+        content: "https://gethired.bermudaappstudios.online/social-preview.png",
+      },
+      { name: "twitter:image:alt", content: "Your next opportunity awaits in Kenya" },
       { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
