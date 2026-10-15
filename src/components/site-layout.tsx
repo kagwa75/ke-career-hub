@@ -12,6 +12,23 @@ const navItems = [
   { label: "Contact", to: "/contact" },
 ] as const;
 
+const communityLinks = [
+  {
+    label: "Join our Telegram for resources and updates",
+    href: "https://t.me/gethiredkenya",
+  },
+  { label: "Follow us on Facebook", href: "https://www.facebook.com/share/19PnJJiWCY/" },
+  { label: "Follow Get Hired KE on X", href: "https://x.com/ghke26" },
+  {
+    label: "Follow Get Hired KE on Instagram",
+    href: "https://www.instagram.com/gethiredke?igsi=MWhjb2FrNHYwMm82Yw%3D%3D",
+  },
+  {
+    label: "Check out CT on the Play Store",
+    href: "https://play.google.com/store/apps/details?id=com.y3vq3cz.calorietracker&pcampaignid=web_share",
+  },
+] as const;
+
 export function SiteLayout({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
@@ -207,6 +224,19 @@ export function SiteLayout({ children }: { children: ReactNode }) {
               <MessageCircle className="size-4" />
               Join our WhatsApp channel
             </a>
+              <div className="mt-3 flex flex-col gap-2 text-sm text-footer-muted">
+                {communityLinks.map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-footer-foreground"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
           </div>
         </div>
         <div className="border-t border-footer-border px-4 py-5 text-center text-xs text-footer-muted">
