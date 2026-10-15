@@ -1,4 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import posthog from "posthog-js";
+import { PostHogProvider } from "@posthog/react";
 import {
   Outlet,
   Link,
@@ -8,7 +10,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -143,11 +145,35 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const isAdmin = pathname.startsWith("/admin");
+  const posthogToken = import.meta.env.VITE_POSTHOG_PROJECT_TOKEN;
+  const posthogHost = import.meta.env.VITE_POSTHOG_HOST || "https://eu.i.posthog.com";
+  const lastTrackedPath = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!posthogToken || posthog.__loaded) return;
+
+    posthog.init(posthogToken, {
+      api_host: posthogHost,
+      autocapture: false,
+      capture_pageview: false,
+      capture_pageleave: false,
+      disable_session_recording: true,
+    });
+  }, [posthogHost, posthogToken]);
+
+  useEffect(() => {
+    if (!posthogToken || isAdmin || lastTrackedPath.current === pathname) return;
+
+    lastTrackedPath.current = pathname;
+    posthog.capture("$pageview", { $current_url: window.location.href });
+  }, [isAdmin, pathname, posthogToken]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      {isAdmin ? <Outlet /> : <SiteLayout><Outlet /></SiteLayout>}
-    </QueryClientProvider>
+    <PostHogProvider client={posthog}>
+      <QueryClientProvider client={queryClient}>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        {isAdmin ? <Outlet /> : <SiteLayout><Outlet /></SiteLayout>}
+      </QueryClientProvider>
+    </PostHogProvider>
   );
 }
