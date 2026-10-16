@@ -7,6 +7,7 @@ import type {
   Category,
   Job,
   JobFormInput,
+  JobPosition,
   JobPublication,
   Organization,
 } from "./types";
@@ -15,6 +16,7 @@ type JobRow = {
   id: string;
   slug: string | null;
   title: string;
+  positions: JobPosition[] | string | null;
   organization_id: string | null;
   organization_name: string;
   location: string | null;
@@ -196,7 +198,9 @@ export async function listPublishedJobsByFilters(filters: AdminJobFilters): Prom
         return false;
       if (
         term &&
-        !`${job.title} ${job.company} ${job.location} ${job.summary}`.toLowerCase().includes(term)
+        !`${job.title} ${job.positions.map((position) => position.title).join(" ")} ${job.company} ${job.location} ${job.summary}`
+          .toLowerCase()
+          .includes(term)
       )
         return false;
       return true;
@@ -214,7 +218,12 @@ export async function listAdminJobs(filters: AdminJobFilters = {}): Promise<Job[
   return (rows as JobRow[])
     .map(mapJobRow)
     .filter((job) => {
-      if (term && !`${job.title} ${job.company} ${job.location}`.toLowerCase().includes(term))
+      if (
+        term &&
+        !`${job.title} ${job.positions.map((position) => position.title).join(" ")} ${job.company} ${job.location}`
+          .toLowerCase()
+          .includes(term)
+      )
         return false;
       if (filters.status && filters.status !== "all" && job.status !== filters.status) return false;
       if (
@@ -300,6 +309,7 @@ export async function upsertJob(
   const responsibilities = input.responsibilities?.map((item) => item.trim()).filter(Boolean) ?? [];
   const requirements = input.requirements?.map((item) => item.trim()).filter(Boolean) ?? [];
   const qualifications = input.qualifications?.trim() || null;
+  const positionsJson = input.positions ? JSON.stringify(input.positions) : null;
 
   await sql`
     insert into jobs (
@@ -308,7 +318,7 @@ export async function upsertJob(
       employment_type, salary, summary, description, responsibilities, requirements,
       qualifications, application_method, application_url, application_email, application_phone,
       application_instructions, source_name, source_url, verification_status,
-      verified_at, verified_by, status, featured, publish_date, scheduled_for,
+      verified_at, verified_by, status, featured, publish_date, scheduled_for, positions,
       deadline, created_by, updated_by
     )
     values (
@@ -321,7 +331,8 @@ export async function upsertJob(
       ${input.applicationMethod}, ${input.applicationUrl || null}, ${input.applicationEmail || null}, ${input.applicationPhone || null},
       ${input.applicationInstructions}, ${input.sourceName}, ${input.sourceUrl || null}, ${input.verificationStatus},
       ${input.verifiedAt || null}, ${input.verifiedBy || null}, ${input.status}, ${input.featured}, ${publishedAt},
-      ${input.scheduledFor || null}, ${input.deadline}, ${actorId}, ${actorId}
+      ${input.scheduledFor || null}, coalesce(${positionsJson}::jsonb, '[]'::jsonb),
+      ${input.deadline}, ${actorId}, ${actorId}
     )
     on conflict (id) do update set
       title = excluded.title,
@@ -355,6 +366,7 @@ export async function upsertJob(
       featured = excluded.featured,
       publish_date = excluded.publish_date,
       scheduled_for = excluded.scheduled_for,
+      positions = case when ${positionsJson}::jsonb is null then jobs.positions else excluded.positions end,
       deadline = excluded.deadline,
       updated_by = excluded.updated_by,
       updated_at = now()
@@ -499,6 +511,7 @@ function mapJobRow(row: JobRow): Job {
     id: row.id,
     slug: row.slug ?? row.id,
     title: row.title,
+    positions: toJobPositions(row.positions),
     company,
     organizationId: row.organization_id,
     location: row.location ?? "",
@@ -564,6 +577,27 @@ function toStringArray(value: JobRow["requirements"]) {
     }
   }
   return [];
+}
+
+function toJobPositions(value: JobRow["positions"]): JobPosition[] {
+  let parsed: unknown = value;
+  if (typeof parsed === "string") {
+    try {
+      parsed = JSON.parse(parsed) as unknown;
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(parsed)) return [];
+  return parsed.filter(
+    (position): position is JobPosition =>
+      Boolean(position) &&
+      typeof position === "object" &&
+      typeof (position as JobPosition).title === "string" &&
+      typeof (position as JobPosition).positionCount === "string" &&
+      typeof (position as JobPosition).salary === "string" &&
+      typeof (position as JobPosition).details === "string",
+  );
 }
 
 function initials(name: string) {

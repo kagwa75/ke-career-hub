@@ -73,10 +73,18 @@ export type Category = {
   description: string | null;
 };
 
+export type JobPosition = {
+  title: string;
+  positionCount: string;
+  salary: string;
+  details: string;
+};
+
 export type Job = {
   id: string;
   slug: string;
   title: string;
+  positions: JobPosition[];
   company: string;
   organizationId: string | null;
   location: string;
@@ -135,6 +143,7 @@ export type JobFormInput = {
   id?: string | undefined;
   slug?: string | undefined;
   title: string;
+  positions?: JobPosition[] | undefined;
   organizationId?: string | undefined;
   organizationName: string;
   location: string | null;

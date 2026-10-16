@@ -10,6 +10,17 @@ function deadlineLine(job: Job) {
   return job.deadline ? `Deadline: ${job.deadline}` : "Deadline: Confirm at source";
 }
 
+function positionsBlock(job: Job) {
+  if (!job.positions.length) return "";
+  return [
+    `Available positions (${job.positions.length}):`,
+    ...job.positions.map((position) => {
+      const details = [position.positionCount, position.salary].filter(Boolean).join(" · ");
+      return `• ${position.title}${details ? ` — ${details}` : ""}`;
+    }),
+  ].join("\n");
+}
+
 export function generateWhatsAppPost(job: Job) {
   return [
     `*${job.title}*`,
@@ -19,6 +30,7 @@ export function generateWhatsAppPost(job: Job) {
     deadlineLine(job),
     "",
     job.summary,
+    ...(positionsBlock(job) ? ["", positionsBlock(job)] : []),
     "",
     applicationLine(job),
     "",
@@ -35,6 +47,7 @@ export function generateTelegramPost(job: Job) {
     deadlineLine(job),
     "",
     job.summary,
+    ...(positionsBlock(job) ? ["", positionsBlock(job)] : []),
     "",
     applicationLine(job),
     "",
@@ -47,6 +60,7 @@ export function generateFacebookPost(job: Job) {
     `${job.title} at ${job.company}`,
     "",
     `${job.summary}`,
+    ...(positionsBlock(job) ? ["", positionsBlock(job)] : []),
     "",
     `Location: ${job.location}`,
     `Category: ${job.category}`,

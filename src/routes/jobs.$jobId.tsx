@@ -126,6 +126,40 @@ function JobDetails() {
               </p>
             </div>
           )}
+          {job.positions.length > 0 && (
+            <section>
+              <h2 className="font-heading text-2xl font-extrabold">
+                Positions in this announcement ({job.positions.length})
+              </h2>
+              <div className="mt-4 space-y-3">
+                {job.positions.map((position, index) => (
+                  <article
+                    key={`${position.title}-${index}`}
+                    className="rounded-lg border border-border bg-card p-5"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <h3 className="font-heading text-lg font-bold">{position.title}</h3>
+                      {position.positionCount && (
+                        <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">
+                          {position.positionCount}
+                        </span>
+                      )}
+                    </div>
+                    {position.salary && (
+                      <p className="mt-2 text-sm font-semibold text-foreground">
+                        Salary: {position.salary}
+                      </p>
+                    )}
+                    {position.details && (
+                      <p className="mt-2 whitespace-pre-line text-sm leading-6 text-muted-foreground">
+                        {position.details}
+                      </p>
+                    )}
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
           <DetailList title="What you’ll do" items={job.responsibilities} />
           <DetailList title="What you’ll bring" items={job.requirements} />
           <DetailList
@@ -149,8 +183,12 @@ function JobDetails() {
         <aside>
           <div className="rounded-lg border border-border bg-card p-6 lg:sticky lg:top-24">
             <p className="text-xs font-bold uppercase text-primary">Role overview</p>
-            <p className="mt-4 font-heading text-2xl font-extrabold">{job.salary}</p>
-            <p className="mt-1 text-sm text-muted-foreground">Salary or stipend</p>
+            <p className="mt-4 font-heading text-2xl font-extrabold">
+              {job.positions.length > 0 ? "Varies by position" : job.salary}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {job.positions.length > 0 ? `${job.positions.length} roles listed` : "Salary or stipend"}
+            </p>
             <div className="my-5 border-t border-border" />
             <p className="text-sm font-semibold">Deadline</p>
             <p className="mt-1 text-sm font-bold text-highlight-strong">{job.deadline}</p>

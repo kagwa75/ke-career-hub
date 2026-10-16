@@ -24,7 +24,9 @@ export function JobCard({ job, compact = false }: { job: Job; compact?: boolean 
       </div>
       <div className="mt-auto flex items-end justify-between gap-3 border-t border-border pt-4">
         <div>
-          <p className="font-heading text-sm font-bold text-foreground">{job.salary}</p>
+          <p className="font-heading text-sm font-bold text-foreground">
+            {job.positions.length > 0 ? `${job.positions.length} listed roles` : job.salary}
+          </p>
           <p className="mt-1 text-xs font-semibold text-highlight-strong">Deadline: {job.deadline}</p>
         </div>
         <Link

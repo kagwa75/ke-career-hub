@@ -18,6 +18,7 @@ import {
   type Category,
   type Job,
   type JobFormInput,
+  type JobPosition,
   type Organization,
 } from "@/lib/jobs/types";
 import type { z } from "zod";
@@ -33,6 +34,7 @@ type FormState = Omit<
   summary: string;
   responsibilities: string[];
   requirements: string[];
+  positions: JobPosition[];
 };
 
 export function JobForm({
@@ -148,6 +150,26 @@ export function JobForm({
         <ListField label="Responsibilities (optional)" items={form.responsibilities} onChange={(items) => set("responsibilities", items)} />
         <ListField label="Requirements (optional)" items={form.requirements} onChange={(items) => set("requirements", items)} />
         <Field label="Qualifications (optional)"><Textarea value={form.qualifications ?? ""} onChange={(event) => set("qualifications", event.target.value)} /></Field>
+      </Section>
+
+      <Section title="Positions in this announcement">
+        <p className="text-sm text-muted-foreground">Use this for a single announcement that lists several roles. Leave it empty for a single-role opportunity.</p>
+        {form.positions.map((position, index) => (
+          <div key={index} className="space-y-3 rounded-md border border-border p-4">
+            <div className="grid gap-3 md:grid-cols-3">
+              <Field label={`Position ${index + 1}`}><Input value={position.title} onChange={(event) => set("positions", form.positions.map((item, itemIndex) => itemIndex === index ? { ...item, title: event.target.value } : item))} /></Field>
+              <Field label="Number of openings (optional)"><Input value={position.positionCount} onChange={(event) => set("positions", form.positions.map((item, itemIndex) => itemIndex === index ? { ...item, positionCount: event.target.value } : item))} /></Field>
+              <Field label="Salary (optional)"><Input value={position.salary} onChange={(event) => set("positions", form.positions.map((item, itemIndex) => itemIndex === index ? { ...item, salary: event.target.value } : item))} /></Field>
+            </div>
+            <div className="flex gap-3">
+              <Field label="Role details (optional)"><Textarea value={position.details} onChange={(event) => set("positions", form.positions.map((item, itemIndex) => itemIndex === index ? { ...item, details: event.target.value } : item))} /></Field>
+              <Button type="button" variant="ghost" size="icon" className="mt-6 shrink-0" onClick={() => set("positions", form.positions.filter((_, itemIndex) => itemIndex !== index))} aria-label={`Remove position ${index + 1}`}><Trash2 className="size-4" /></Button>
+            </div>
+          </div>
+        ))}
+        <Button type="button" variant="secondary" size="sm" onClick={() => set("positions", [...form.positions, { title: "", positionCount: "", salary: "", details: "" }])}>
+          <Plus className="size-4" /> Add position
+        </Button>
       </Section>
 
       <Section title="Application">
@@ -283,6 +305,7 @@ function toFormState(job: Job | null | undefined, fallbackCategoryId: string): F
       description: "",
       responsibilities: [""],
       requirements: [""],
+      positions: [],
       qualifications: "",
       applicationMethod: "apply_online",
       applicationUrl: "",
@@ -320,6 +343,7 @@ function toFormState(job: Job | null | undefined, fallbackCategoryId: string): F
     description: job.description,
     responsibilities: job.responsibilities.length ? job.responsibilities : [""],
     requirements: job.requirements.length ? job.requirements : [""],
+    positions: job.positions ?? [],
     qualifications: job.qualifications,
     applicationMethod: job.applicationMethod as ApplicationMethod,
     applicationUrl: job.applicationUrl,

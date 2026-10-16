@@ -145,8 +145,8 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const isAdmin = pathname.startsWith("/admin");
-  const posthogToken = import.meta.env.VITE_POSTHOG_PROJECT_TOKEN;
-  const posthogHost = import.meta.env.VITE_POSTHOG_HOST || "https://eu.i.posthog.com";
+  const posthogToken = import.meta.env["VITE_POSTHOG_PROJECT_TOKEN"];
+  const posthogHost = import.meta.env["VITE_POSTHOG_HOST"] || "https://eu.i.posthog.com";
   const lastTrackedPath = useRef<string | null>(null);
 
   useEffect(() => {

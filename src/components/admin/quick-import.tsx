@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, Check, LoaderCircle, Sparkles } from "lucide-react";
+import { AlertTriangle, Check, LoaderCircle, Plus, Sparkles, Trash2 } from "lucide-react";
 
 import { AdminPageHeader } from "@/components/admin/admin-layout";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { extractQuickImport, saveQuickImportDrafts } from "@/lib/jobs/import-actions.server";
-import type { Category, Organization } from "@/lib/jobs/types";
+import type { Category, JobPosition, Organization } from "@/lib/jobs/types";
 import { opportunityTypes } from "@/lib/jobs/types";
 import type { ExtractedOpportunity } from "@/lib/jobs/import-schema";
 
@@ -21,6 +21,7 @@ type Duplicate = {
 } | null;
 type ExtractedReview = ExtractedOpportunity & {
   category_id: string | null;
+  positions: ExtractedOpportunity["positions"];
   organization_id: string | null;
   duplicate: Duplicate;
 };
@@ -43,6 +44,7 @@ type ReviewRecord = {
   responsibilities: string[];
   requirements: string[];
   qualifications: string[];
+  positions: JobPosition[];
   applicationMethod: string;
   applicationUrl: string;
   applicationEmail: string;
@@ -117,6 +119,10 @@ export function QuickImport({
   async function saveSelected() {
     const selected = records.filter((record) => record.selected);
     if (!selected.length) return;
+    if (selected.some((record) => record.positions.some((position) => !position.title.trim()))) {
+      setError("Give each listed position a title or remove the empty position before saving.");
+      return;
+    }
     setSaving(true);
     setError("");
     setNotice("");
@@ -161,7 +167,7 @@ export function QuickImport({
     <>
       <AdminPageHeader
         title="Quick Import"
-        description="Paste one or more raw job posts and GHK will extract structured opportunity records for review. Nothing is saved or published until you choose to save drafts."
+        description="Paste one or more source posts and GHK will extract one announcement per post. Related roles in the same announcement stay grouped for review. Nothing is saved or published until you choose to save drafts."
       />
 
       <section className="rounded-lg border border-border bg-card p-5 shadow-sm">
@@ -180,7 +186,7 @@ export function QuickImport({
         />
         <div className="mt-3 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <p className="text-xs text-muted-foreground">
-            {rawText.length.toLocaleString()} / 100,000 characters · Up to 50 opportunities per
+            {rawText.length.toLocaleString()} / 100,000 characters · Up to 50 announcements per
             import
           </p>
           <Button
@@ -219,7 +225,7 @@ export function QuickImport({
         <section className="mt-7 space-y-4">
           <div className="flex flex-col justify-between gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center">
             <div>
-              <h2 className="font-heading text-xl font-extrabold">Review opportunities</h2>
+              <h2 className="font-heading text-xl font-extrabold">Review imported posts</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {records.length} detected · {totalWarnings} review warnings ·{" "}
                 {
@@ -307,7 +313,7 @@ function ReviewCard({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-xs font-bold uppercase tracking-wide text-primary">
-              Opportunity {index + 1}
+              {record.positions.length > 0 ? "Grouped announcement" : `Opportunity ${index + 1}`}
             </p>
             {(record.needsReview || warnings.length > 0) && (
               <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">
@@ -418,6 +424,122 @@ function ReviewCard({
               </span>
             </Field>
           </div>
+
+          <section className="mt-5 rounded-lg border border-border bg-surface/50 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className="font-heading text-sm font-bold">Positions in this announcement</h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Keep related roles together under this employer and application link.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  onChange({
+                    positions: [
+                      ...record.positions,
+                      { title: "", positionCount: "", salary: "", details: "" },
+                    ],
+                  })
+                }
+              >
+                <Plus className="size-4" />
+                Add position
+              </Button>
+            </div>
+            {record.positions.length > 0 && (
+              <div className="mt-4 space-y-3">
+                {record.positions.map((position, positionIndex) => (
+                  <div
+                    key={`${record.importId}-position-${positionIndex}`}
+                    className="rounded-md border border-border bg-card p-3"
+                  >
+                    <div className="grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
+                      <Field label={`Position ${positionIndex + 1}`}>
+                        <Input
+                          value={position.title}
+                          maxLength={300}
+                          onChange={(event) =>
+                            onChange({
+                              positions: record.positions.map((item, index) =>
+                                index === positionIndex ? { ...item, title: event.target.value } : item,
+                              ),
+                            })
+                          }
+                          placeholder="Job title"
+                        />
+                      </Field>
+                      <Field label="Number of openings">
+                        <Input
+                          value={position.positionCount}
+                          maxLength={100}
+                          onChange={(event) =>
+                            onChange({
+                              positions: record.positions.map((item, index) =>
+                                index === positionIndex
+                                  ? { ...item, positionCount: event.target.value }
+                                  : item,
+                              ),
+                            })
+                          }
+                          placeholder="e.g. 2 positions"
+                        />
+                      </Field>
+                      <Field label="Salary or range">
+                        <Input
+                          value={position.salary}
+                          maxLength={200}
+                          onChange={(event) =>
+                            onChange({
+                              positions: record.positions.map((item, index) =>
+                                index === positionIndex ? { ...item, salary: event.target.value } : item,
+                              ),
+                            })
+                          }
+                          placeholder="Not specified"
+                        />
+                      </Field>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="self-end text-destructive"
+                        aria-label={`Remove position ${positionIndex + 1}`}
+                        onClick={() =>
+                          onChange({
+                            positions: record.positions.filter((_, index) => index !== positionIndex),
+                          })
+                        }
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                    <Field label="Role-specific details (optional)">
+                      <Textarea
+                        className="mt-3"
+                        rows={2}
+                        value={position.details}
+                        maxLength={8_000}
+                        onChange={(event) =>
+                          onChange({
+                            positions: record.positions.map((item, index) =>
+                              index === positionIndex
+                                ? { ...item, details: event.target.value }
+                                : item,
+                            ),
+                          })
+                        }
+                        placeholder="Requirements or details that apply to this role"
+                      />
+                    </Field>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
 
           <div className="mt-5 grid gap-4">
             <Field label="Summary (optional)">
@@ -597,6 +719,12 @@ function toReviewRecord(value: ExtractedReview): ReviewRecord {
     responsibilities: value.responsibilities,
     requirements: value.requirements,
     qualifications: value.qualifications,
+    positions: value.positions.map((position) => ({
+      title: position.title,
+      positionCount: position.position_count ?? "",
+      salary: position.salary ?? "",
+      details: position.details ?? "",
+    })),
     applicationMethod: value.application_method ?? "",
     applicationUrl: value.application_url ?? "",
     applicationEmail: value.application_email ?? "",

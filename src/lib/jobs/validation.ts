@@ -45,6 +45,12 @@ export const jobFormSchema = z
     experienceLevel: z.string().trim().optional(),
     employmentType: z.string().trim().optional(),
     salary: z.string().trim().optional(),
+    positions: z.array(z.object({
+      title: z.string().trim().min(1, "Add a title for each listed position.").max(300),
+      positionCount: z.string().trim().max(100),
+      salary: z.string().trim().max(200),
+      details: z.string().trim().max(8000),
+    })).max(100).default([]),
     summary: optionalContent,
     description: z.string().trim().optional(),
     responsibilities: optionalList,

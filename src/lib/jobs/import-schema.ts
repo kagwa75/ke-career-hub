@@ -9,6 +9,14 @@ export const quickImportTextSchema = z
 
 const nullableText = z.string().trim().max(20_000).nullable();
 const textList = z.array(z.string().trim().min(1).max(4_000)).max(100);
+const extractedPositionSchema = z
+  .object({
+    title: z.string().trim().min(1).max(300),
+    position_count: z.string().trim().max(100).nullable(),
+    salary: z.string().trim().max(200).nullable(),
+    details: z.string().trim().max(8_000).nullable(),
+  })
+  .strict();
 
 export const extractedOpportunitySchema = z
   .object({
@@ -26,6 +34,7 @@ export const extractedOpportunitySchema = z
     responsibilities: textList,
     requirements: textList,
     qualifications: textList,
+    positions: z.array(extractedPositionSchema).max(100).default([]),
     application_method: nullableText,
     application_url: nullableText,
     application_email: nullableText,
@@ -89,6 +98,7 @@ export const extractionJsonSchema = {
           "responsibilities",
           "requirements",
           "qualifications",
+          "positions",
           "application_method",
           "application_url",
           "application_email",
@@ -115,6 +125,21 @@ export const extractionJsonSchema = {
           responsibilities: list,
           requirements: list,
           qualifications: list,
+          positions: {
+            type: "array",
+            maxItems: 100,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["title", "position_count", "salary", "details"],
+              properties: {
+                title: { type: "string", maxLength: 300 },
+                position_count: { anyOf: [{ type: "string", maxLength: 100 }, { type: "null" }] },
+                salary: { anyOf: [{ type: "string", maxLength: 200 }, { type: "null" }] },
+                details: { anyOf: [{ type: "string", maxLength: 8_000 }, { type: "null" }] },
+              },
+            },
+          },
           application_method: nullableString,
           application_url: nullableString,
           application_email: nullableString,
@@ -201,6 +226,13 @@ export function normalizeExtractedOpportunity(
   for (const key of ["responsibilities", "requirements", "qualifications"] as const) {
     result[key] = opportunity[key].map((item) => item.trim()).filter(Boolean);
   }
+  result.positions = (opportunity.positions ?? []).map((position) => ({
+    ...position,
+    title: position.title.trim(),
+    position_count: clean(position.position_count),
+    salary: clean(position.salary),
+    details: clean(position.details),
+  }));
   return result;
 }
 

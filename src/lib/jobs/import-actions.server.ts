@@ -35,6 +35,16 @@ const reviewedOpportunity = z.object({
   responsibilities: z.array(z.string().trim().max(4_000)).max(100),
   requirements: z.array(z.string().trim().max(4_000)).max(100),
   qualifications: z.array(z.string().trim().max(4_000)).max(100),
+  positions: z
+    .array(
+      z.object({
+        title: z.string().trim().min(1).max(300),
+        positionCount: z.string().trim().max(100),
+        salary: z.string().trim().max(200),
+        details: z.string().trim().max(8_000),
+      }),
+    )
+    .max(100),
   applicationMethod: z.string().trim().max(100),
   applicationUrl: z.string().trim().max(2_000),
   applicationEmail: z.string().trim().max(320),
@@ -185,6 +195,7 @@ export const saveQuickImportDrafts = createServerFn({ method: "POST" })
             responsibilities: opportunity.responsibilities.filter(Boolean),
             requirements: opportunity.requirements.filter(Boolean),
             qualifications: opportunity.qualifications.filter(Boolean).join("\n"),
+            positions: opportunity.positions,
             applicationMethod,
             applicationUrl: opportunity.applicationUrl || undefined,
             applicationEmail: opportunity.applicationEmail || undefined,
