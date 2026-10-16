@@ -7,8 +7,9 @@ export function JobCard({ job, compact = false }: { job: Job; compact?: boolean 
     <article className="group flex h-full flex-col rounded-lg border border-border bg-card p-5 transition duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-card">
       <div className="flex items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-primary-soft font-heading text-sm font-bold text-primary">
-            {job.initials}
+          <div className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-md bg-primary-soft font-heading text-sm font-bold text-primary">
+            <span>{job.initials}</span>
+            {job.organizationLogo && <img src={job.organizationLogo} alt="" className="absolute inset-0 size-full bg-card object-contain p-1" onError={(event) => { event.currentTarget.style.display = "none"; }} />}
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-muted-foreground">{job.company}</p>

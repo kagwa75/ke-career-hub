@@ -79,8 +79,9 @@ function JobDetails() {
           </Link>
           <div className="mt-7 flex flex-col justify-between gap-7 lg:flex-row lg:items-end">
             <div className="flex items-start gap-4">
-              <div className="flex size-14 shrink-0 items-center justify-center rounded-md bg-primary-soft font-heading font-bold text-primary">
-                {job.initials}
+              <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-md bg-primary-soft font-heading font-bold text-primary">
+                <span>{job.initials}</span>
+                {job.organizationLogo && <img src={job.organizationLogo} alt={`${job.company} logo`} className="absolute inset-0 size-full bg-surface object-contain p-1" onError={(event) => { event.currentTarget.style.display = "none"; }} />}
               </div>
               <div>
                 {job.featured && (

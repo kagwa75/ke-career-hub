@@ -1,6 +1,7 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import {
   BriefcaseBusiness,
+  Building2,
   LayoutDashboard,
   LogOut,
   Plus,
@@ -17,6 +18,7 @@ import { Toaster } from "@/components/ui/sonner";
 const items = [
   { label: "Dashboard", to: "/admin", icon: LayoutDashboard },
   { label: "Jobs", to: "/admin/jobs", icon: Rows3 },
+  { label: "Organizations", to: "/admin/organizations", icon: Building2 },
   { label: "Quick Import", to: "/admin/jobs/import", icon: Sparkles },
   { label: "Create Job", to: "/admin/jobs/new", icon: Plus },
 ] as const;

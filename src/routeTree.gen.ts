@@ -21,6 +21,7 @@ import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-condi
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminJobsRouteImport } from './routes/admin.jobs'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminOrganizationsRouteImport } from './routes/admin.organizations'
 import { Route as CareerHubSlugRouteImport } from './routes/career-hub.$slug'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
@@ -89,6 +90,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminOrganizationsRoute = AdminOrganizationsRouteImport.update({
+  id: '/organizations',
+  path: '/organizations',
+  getParentRoute: () => AdminRoute,
+} as any)
 const CareerHubSlugRoute = CareerHubSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/admin/jobs': typeof AdminJobsRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/admin/organizations': typeof AdminOrganizationsRoute
   '/career-hub/$slug': typeof CareerHubSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/services/$slug': typeof ServicesSlugRoute
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/admin/jobs': typeof AdminJobsRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/admin/organizations': typeof AdminOrganizationsRoute
   '/career-hub/$slug': typeof CareerHubSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/services/$slug': typeof ServicesSlugRoute
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/admin/jobs': typeof AdminJobsRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/admin/organizations': typeof AdminOrganizationsRoute
   '/career-hub/$slug': typeof CareerHubSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/services/$slug': typeof ServicesSlugRoute
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
     | '/terms-and-conditions'
     | '/admin/jobs'
     | '/admin/login'
+    | '/admin/organizations'
     | '/career-hub/$slug'
     | '/jobs/$jobId'
     | '/services/$slug'
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/terms-and-conditions'
     | '/admin/jobs'
     | '/admin/login'
+    | '/admin/organizations'
     | '/career-hub/$slug'
     | '/jobs/$jobId'
     | '/services/$slug'
@@ -243,6 +254,7 @@ export interface FileRouteTypes {
     | '/terms-and-conditions'
     | '/admin/jobs'
     | '/admin/login'
+    | '/admin/organizations'
     | '/career-hub/$slug'
     | '/jobs/$jobId'
     | '/services/$slug'
@@ -352,6 +364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/organizations': {
+      id: '/admin/organizations'
+      path: '/organizations'
+      fullPath: '/admin/organizations'
+      preLoaderRoute: typeof AdminOrganizationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/career-hub/$slug': {
       id: '/career-hub/$slug'
       path: '/$slug'
@@ -435,12 +454,14 @@ const AdminJobsRouteWithChildren = AdminJobsRoute._addFileChildren(
 interface AdminRouteChildren {
   AdminJobsRoute: typeof AdminJobsRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminOrganizationsRoute: typeof AdminOrganizationsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminJobsRoute: AdminJobsRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
+  AdminOrganizationsRoute: AdminOrganizationsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

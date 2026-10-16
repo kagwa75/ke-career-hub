@@ -10,6 +10,7 @@ import {
   listOrganizations,
   listPublications,
   recordPublication,
+  saveOrganization,
   updateJobStatus,
   upsertJob,
 } from "./repository.server";
@@ -32,6 +33,33 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
   const [summary, recentJobs] = await Promise.all([getAdminSummary(), listAdminJobs({ sort: "updated" })]);
   return { summary, recentJobs: recentJobs.slice(0, 8) };
 });
+
+export const getAdminOrganizations = createServerFn({ method: "GET" }).handler(async () => {
+  await requireAdminSession();
+  return { organizations: await listOrganizations() };
+});
+
+const organizationSchema = z.object({
+  id: z.string().trim().optional(),
+  name: z.string().trim().min(2).max(300),
+  website: z.string().trim().max(2_000).transform((value) => value || null).refine(
+    (value) => !value || /^https?:\/\/.+/i.test(value),
+    "Enter a valid http(s) website URL.",
+  ),
+  logo: z.string().trim().max(2_000).transform((value) => value || null).refine(
+    (value) => !value || /^https?:\/\/.+/i.test(value) || value.startsWith("/"),
+    "Enter an image URL or a site path beginning with /.",
+  ),
+  description: z.string().trim().max(10_000).transform((value) => value || null),
+});
+
+export const saveAdminOrganization = createServerFn({ method: "POST" })
+  .validator(organizationSchema)
+  .handler(async ({ data }) => {
+    await requireAdminSession();
+    const id = await saveOrganization(data);
+    return { ok: true, organizationId: id };
+  });
 
 export const getAdminJobs = createServerFn({ method: "GET" })
   .validator(filtersSchema)

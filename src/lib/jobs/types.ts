@@ -86,6 +86,7 @@ export type Job = {
   title: string;
   positions: JobPosition[];
   company: string;
+  organizationLogo: string | null;
   organizationId: string | null;
   location: string;
   county: string;
