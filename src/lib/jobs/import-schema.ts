@@ -8,11 +8,15 @@ export const quickImportTextSchema = z
   .max(100_000, "Your import is too large. Please split it into smaller batches.");
 
 const nullableText = z.string().trim().max(20_000).nullable();
+const nullableCount = z.preprocess(
+  (value) => (typeof value === "number" && Number.isFinite(value) ? String(value) : value),
+  z.string().trim().max(100).nullable(),
+);
 const textList = z.array(z.string().trim().min(1).max(4_000)).max(100);
 const extractedPositionSchema = z
   .object({
     title: z.string().trim().min(1).max(300),
-    position_count: z.string().trim().max(100).nullable(),
+    position_count: nullableCount,
     salary: z.string().trim().max(200).nullable(),
     details: z.string().trim().max(8_000).nullable(),
   })
@@ -134,7 +138,13 @@ export const extractionJsonSchema = {
               required: ["title", "position_count", "salary", "details"],
               properties: {
                 title: { type: "string", maxLength: 300 },
-                position_count: { anyOf: [{ type: "string", maxLength: 100 }, { type: "null" }] },
+                position_count: {
+                  anyOf: [
+                    { type: "string", maxLength: 100 },
+                    { type: "number" },
+                    { type: "null" },
+                  ],
+                },
                 salary: { anyOf: [{ type: "string", maxLength: 200 }, { type: "null" }] },
                 details: { anyOf: [{ type: "string", maxLength: 8_000 }, { type: "null" }] },
               },
