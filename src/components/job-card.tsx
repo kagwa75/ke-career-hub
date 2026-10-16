@@ -9,7 +9,7 @@ export function JobCard({ job, compact = false }: { job: Job; compact?: boolean 
         <div className="flex min-w-0 items-center gap-3">
           <div className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-md bg-primary-soft font-heading text-sm font-bold text-primary">
             <span>{job.initials}</span>
-            {job.organizationLogo && <img src={job.organizationLogo} alt="" className="absolute inset-0 size-full bg-card object-contain p-1" onError={(event) => { event.currentTarget.style.display = "none"; }} />}
+            <img src={job.organizationLogo || "/job_placeholder.jpeg"} alt="" className="absolute inset-0 size-full bg-card object-contain p-1" onError={(event) => { event.currentTarget.style.display = "none"; }} />
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-muted-foreground">{job.company}</p>
