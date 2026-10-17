@@ -16,7 +16,10 @@ export function JobCard({ job, compact = false }: { job: Job; compact?: boolean 
             <h3 className="mt-0.5 font-heading text-lg font-bold text-card-foreground">{job.title}</h3>
           </div>
         </div>
-        {job.featured && <span className="rounded-full bg-highlight-soft px-2.5 py-1 text-xs font-bold text-highlight-strong">Featured</span>}
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          {job.featured && <span className="rounded-full bg-highlight-soft px-2.5 py-1 text-xs font-bold text-highlight-strong">Featured</span>}
+          {job.verificationStatus === "verified" && <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-1 text-[11px] font-bold text-primary">Verified</span>}
+        </div>
       </div>
       {!compact && job.summary && <p className="mt-4 line-clamp-2 text-sm leading-6 text-muted-foreground">{job.summary}</p>}
       <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
@@ -28,6 +31,7 @@ export function JobCard({ job, compact = false }: { job: Job; compact?: boolean 
           <p className="font-heading text-sm font-bold text-foreground">
             {job.positions.length > 0 ? `${job.positions.length} listed roles` : job.salary}
           </p>
+          <p className="mt-1 text-xs text-muted-foreground">Posted: {job.posted}</p>
           <p className="mt-1 text-xs font-semibold text-highlight-strong">Deadline: {job.deadline}</p>
         </div>
         <Link

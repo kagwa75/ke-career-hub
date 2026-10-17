@@ -16,7 +16,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/job-card";
-import { WHATSAPP_URL, type Category, type Job } from "@/lib/jobs/types";
+import { opportunityTypes, WHATSAPP_URL, type Category, type Job } from "@/lib/jobs/types";
 import { getPublicHomeJobs } from "@/lib/jobs/public-actions.server";
 
 type SearchParams = { category?: string };
@@ -62,6 +62,7 @@ function HomePage() {
   const [keyword, setKeyword] = useState("");
   const [location, setLocation] = useState("");
   const [category, setCategory] = useState(routeSearch.category ?? "All categories");
+  const [opportunityType, setOpportunityType] = useState("all");
   const [submitted, setSubmitted] = useState(Boolean(routeSearch.category));
 
   useEffect(() => {
@@ -75,16 +76,18 @@ function HomePage() {
     const place = location.toLowerCase().trim();
     return jobs.filter(
       (job) =>
-        (!term || `${job.title} ${job.company}`.toLowerCase().includes(term)) &&
-        (!place || job.location.toLowerCase().includes(place)) &&
-        (category === "All categories" || job.category === category),
+        (!term || `${job.title} ${job.positions.map((position) => position.title).join(" ")} ${job.company}`.toLowerCase().includes(term)) &&
+        (!place || `${job.location} ${job.county}`.toLowerCase().includes(place)) &&
+        (category === "All categories" || job.category === category) &&
+        (opportunityType === "all" || job.opportunityType === opportunityType),
     );
-  }, [category, keyword, location, submitted]);
+  }, [category, keyword, location, opportunityType, submitted, jobs]);
 
   const resetSearch = () => {
     setKeyword("");
     setLocation("");
     setCategory("All categories");
+    setOpportunityType("all");
     setSubmitted(false);
   };
 
@@ -106,7 +109,7 @@ function HomePage() {
             </p>
           </div>
           <form
-            className="mt-9 grid max-w-5xl gap-2 rounded-lg border border-border bg-card p-2 shadow-search md:grid-cols-[1.3fr_1fr_1fr_auto]"
+            className="mt-9 grid max-w-5xl gap-2 rounded-lg border border-border bg-card p-2 shadow-search md:grid-cols-[1.3fr_1fr_1fr_1fr_auto]"
             onSubmit={(event) => {
               event.preventDefault();
               setSubmitted(true);
@@ -143,6 +146,13 @@ function HomePage() {
                 {categories.map((item) => (
                   <option key={item.name}>{item.name}</option>
                 ))}
+              </select>
+            </label>
+            <label className="flex h-13 items-center rounded-md border-t border-border px-3 md:border-l md:border-t-0">
+              <span className="sr-only">Opportunity type</span>
+              <select className="w-full bg-transparent text-sm outline-none" value={opportunityType} onChange={(event) => setOpportunityType(event.target.value)}>
+                <option value="all">All opportunity types</option>
+                {opportunityTypes.filter((item) => item.slug !== "all").map((item) => <option key={item.slug} value={item.slug}>{item.label}</option>)}
               </select>
             </label>
             <Button type="submit" size="lg">
@@ -215,6 +225,10 @@ function HomePage() {
               <Button className="mt-5" variant="secondary" onClick={resetSearch}>
                 Reset search
               </Button>
+              <p className="mt-4 text-sm text-muted-foreground">Want new listings as they arrive?</p>
+              <a className="mt-2 inline-flex items-center justify-center gap-2 text-sm font-bold text-primary hover:underline" href="https://t.me/gethiredkenya" target="_blank" rel="noreferrer">
+                <MessageCircle className="size-4" /> Join our Telegram updates
+              </a>
             </div>
           )}
         </div>
