@@ -22,7 +22,12 @@ export const Route = createFileRoute("/jobs/$jobId")({
     if (!job) throw notFound();
     return { job, jobs: listing.jobs };
   },
-  head: ({ loaderData }) => ({
+  head: ({ loaderData }) => {
+    const job = loaderData?.job;
+    const imageUrl = job?.organizationLogo
+      ? new URL(job.organizationLogo, "https://gethired.bermudaappstudios.online").toString()
+      : "https://gethired.bermudaappstudios.online/job_placeholder.jpeg";
+    return {
     meta: [
       {
         title: loaderData?.job
@@ -42,9 +47,14 @@ export const Route = createFileRoute("/jobs/$jobId")({
         content: loaderData?.job.summary ?? "Explore jobs and opportunities in Kenya.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: imageUrl },
+      { property: "og:image:alt", content: job ? `${job.company} logo` : "Get Hired KE" },
+      { name: "twitter:image", content: imageUrl },
+      { name: "twitter:image:alt", content: job ? `${job.company} logo` : "Get Hired KE" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-  }),
+    };
+  },
   component: JobDetails,
   notFoundComponent: () => (
     <div className="mx-auto max-w-3xl px-4 py-24 text-center">
