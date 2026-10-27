@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import {
   getPublishedJobByIdOrSlug,
+  getPublishedOrganizationProfile,
   listCategories,
   listFeaturedPublishedJobs,
   listPublishedJobs,
@@ -36,3 +37,7 @@ export const getPublicJobsByFilters = createServerFn({ method: "GET" })
 export const getPublicJobDetails = createServerFn({ method: "GET" })
   .validator(z.object({ jobId: z.string() }))
   .handler(async ({ data }) => getPublishedJobByIdOrSlug(data.jobId));
+
+export const getPublicOrganizationProfile = createServerFn({ method: "GET" })
+  .validator(z.object({ slug: z.string().trim().min(1) }))
+  .handler(async ({ data }) => getPublishedOrganizationProfile(data.slug));

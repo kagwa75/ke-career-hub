@@ -16,6 +16,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/job-card";
+import { RecentlyViewedJobs } from "@/components/recently-viewed-jobs";
 import { opportunityTypes, WHATSAPP_URL, type Category, type Job } from "@/lib/jobs/types";
 import { getPublicHomeJobs } from "@/lib/jobs/public-actions.server";
 
@@ -189,6 +190,8 @@ function HomePage() {
             ))}
         </div>
       </section>
+
+      <RecentlyViewedJobs jobs={jobs} />
 
       <section className="border-y border-border bg-surface py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

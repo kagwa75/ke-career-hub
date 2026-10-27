@@ -20,6 +20,7 @@ type JobRow = {
   organization_id: string | null;
   organization_name: string;
   organization_logo: string | null;
+  organization_slug: string | null;
   location: string | null;
   county: string | null;
   opportunity_type: string;
@@ -73,6 +74,22 @@ export async function listOrganizations(): Promise<Organization[]> {
     order by name asc
   `;
   return rows as Organization[];
+}
+
+export async function getPublishedOrganizationProfile(slug: string) {
+  const rows = await sql`
+    select id, name, slug, website, logo, description
+    from organizations where slug = ${slug} limit 1
+  `;
+  const organization = (rows as Organization[])[0] ?? null;
+  if (!organization) return null;
+
+  const publishedJobs = await listPublishedJobs();
+  const jobs = publishedJobs.filter((job) =>
+    job.organizationId === organization.id ||
+    (!job.organizationId && job.company.toLocaleLowerCase() === organization.name.toLocaleLowerCase()),
+  );
+  return { organization, jobs };
 }
 
 export async function saveOrganization(input: {
@@ -178,7 +195,7 @@ export async function getCategoryName(categoryId: string) {
 
 export async function listPublishedJobs(): Promise<Job[]> {
   const rows = await sql`
-    select jobs.*, organizations.logo as organization_logo
+    select jobs.*, organizations.logo as organization_logo, organizations.slug as organization_slug
     from jobs left join organizations on organizations.id = jobs.organization_id
     where jobs.status = 'published'
       and (jobs.deadline is null or jobs.deadline >= now())
@@ -190,7 +207,7 @@ export async function listPublishedJobs(): Promise<Job[]> {
 
 export async function listFeaturedPublishedJobs(): Promise<Job[]> {
   const rows = await sql`
-    select jobs.*, organizations.logo as organization_logo
+    select jobs.*, organizations.logo as organization_logo, organizations.slug as organization_slug
     from jobs left join organizations on organizations.id = jobs.organization_id
     where jobs.status = 'published'
       and (jobs.deadline is null or jobs.deadline >= now())
@@ -203,7 +220,7 @@ export async function listFeaturedPublishedJobs(): Promise<Job[]> {
 
 export async function getPublishedJobByIdOrSlug(idOrSlug: string): Promise<Job | null> {
   const rows = await sql`
-    select jobs.*, organizations.logo as organization_logo
+    select jobs.*, organizations.logo as organization_logo, organizations.slug as organization_slug
     from jobs left join organizations on organizations.id = jobs.organization_id
     where jobs.status = 'published'
       and (jobs.deadline is null or jobs.deadline >= now())
@@ -245,7 +262,7 @@ export async function listPublishedJobsByFilters(filters: AdminJobFilters): Prom
 
 export async function listAdminJobs(filters: AdminJobFilters = {}): Promise<Job[]> {
   const rows = await sql`
-    select jobs.*, organizations.logo as organization_logo
+    select jobs.*, organizations.logo as organization_logo, organizations.slug as organization_slug
     from jobs left join organizations on organizations.id = jobs.organization_id
     order by jobs.updated_at desc, jobs.created_at desc
   `;
@@ -289,7 +306,7 @@ export async function listAdminJobs(filters: AdminJobFilters = {}): Promise<Job[
 
 export async function getAdminJob(id: string): Promise<Job | null> {
   const rows = await sql`
-    select jobs.*, organizations.logo as organization_logo
+    select jobs.*, organizations.logo as organization_logo, organizations.slug as organization_slug
     from jobs left join organizations on organizations.id = jobs.organization_id
     where jobs.id = ${id} or jobs.slug = ${id} limit 1
   `;
@@ -552,6 +569,7 @@ function mapJobRow(row: JobRow): Job {
     positions: toJobPositions(row.positions),
     company,
     organizationLogo: row.organization_logo ?? null,
+    organizationSlug: row.organization_slug ?? null,
     organizationId: row.organization_id,
     location: row.location ?? "",
     county: row.county ?? "",

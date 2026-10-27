@@ -7,10 +7,16 @@ import {
   Clock3,
   ExternalLink,
   MapPin,
+  ShieldCheck,
   Send,
 } from "lucide-react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { DeadlineReminderButton } from "@/components/deadline-reminder-button";
 import { JobCard } from "@/components/job-card";
+import { SaveJobButton } from "@/components/save-job-button";
+import { ShareJobButtons } from "@/components/share-job-buttons";
+import { addRecentlyViewedJob } from "@/lib/jobs/browser-preferences";
 import { getPublicHomeJobs, getPublicJobDetails } from "@/lib/jobs/public-actions.server";
 
 export const Route = createFileRoute("/jobs/$jobId")({
@@ -71,6 +77,7 @@ export const Route = createFileRoute("/jobs/$jobId")({
 
 function JobDetails() {
   const { job, jobs } = Route.useLoaderData();
+  useEffect(() => addRecentlyViewedJob(job.id), [job.id]);
   const sameCategory = jobs.filter((item) => item.id !== job.id && item.category === job.category);
   const related = (
     sameCategory.length ? sameCategory : jobs.filter((item) => item.id !== job.id)
@@ -102,7 +109,17 @@ function JobDetails() {
                 <h1 className="mt-3 font-heading text-3xl font-extrabold sm:text-4xl">
                   {job.title}
                 </h1>
-                <p className="mt-2 text-lg text-muted-foreground">{job.company}</p>
+                {job.organizationSlug ? (
+                  <Link to="/employers/$slug" params={{ slug: job.organizationSlug }} className="mt-2 inline-block text-lg text-muted-foreground hover:text-primary hover:underline">
+                    {job.company}
+                  </Link>
+                ) : (
+                  <p className="mt-2 text-lg text-muted-foreground">{job.company}</p>
+                )}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <SaveJobButton jobId={job.id} />
+                  <DeadlineReminderButton job={job} />
+                </div>
               </div>
             </div>
             <Button asChild size="lg">
@@ -180,6 +197,7 @@ function JobDetails() {
           <div>
             <h2 className="font-heading text-2xl font-extrabold">How to apply</h2>
             <p className="mt-4 leading-7 text-muted-foreground">{job.applicationInstructions}</p>
+            <ShareJobButtons job={job} />
             <a
               href={job.sourceUrl}
               target="_blank"
@@ -203,9 +221,15 @@ function JobDetails() {
             <div className="my-5 border-t border-border" />
             <p className="text-sm font-semibold">Deadline</p>
             <p className="mt-1 text-sm font-bold text-highlight-strong">{job.deadline}</p>
+            <div className="my-5 border-t border-border" />
+            <div className="rounded-lg bg-primary-soft/60 p-4">
+              <p className="flex items-center gap-2 text-sm font-bold text-primary"><ShieldCheck className="size-4" /> Verified listing</p>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                Get Hired KE reviewed the vacancy details against the source listing{job.verifiedAt ? ` on ${job.verifiedAt}` : ""}. Details can change, so confirm with the employer before applying.
+              </p>
+            </div>
             <p className="mt-4 text-sm font-semibold">Source</p>
-            <p className="mt-1 text-sm text-muted-foreground">{job.source}</p>
-            <p className="mt-1 text-xs text-muted-foreground">Checked {job.verifiedAt}</p>
+            <a href={job.sourceUrl || job.applicationUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-sm text-primary hover:underline">{job.source}<ExternalLink className="size-3.5" /></a>
             <Button asChild className="mt-6 w-full">
               <a href={job.applicationUrl} target="_blank" rel="noreferrer">
                 <Send className="size-4" />

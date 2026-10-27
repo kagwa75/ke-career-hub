@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Clock3, MapPin } from "lucide-react";
 import type { Job } from "@/lib/jobs/types";
+import { SaveJobButton } from "@/components/save-job-button";
 
 export function JobCard({ job, compact = false }: { job: Job; compact?: boolean }) {
   return (
@@ -12,7 +13,13 @@ export function JobCard({ job, compact = false }: { job: Job; compact?: boolean 
             <img src={job.organizationLogo || "/job_placeholder.jpeg"} alt="" className="absolute inset-0 size-full bg-card object-contain p-1" onError={(event) => { event.currentTarget.style.display = "none"; }} />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-muted-foreground">{job.company}</p>
+            {job.organizationSlug ? (
+              <Link to="/employers/$slug" params={{ slug: job.organizationSlug }} className="block truncate text-sm font-medium text-muted-foreground hover:text-primary hover:underline">
+                {job.company}
+              </Link>
+            ) : (
+              <p className="truncate text-sm font-medium text-muted-foreground">{job.company}</p>
+            )}
             <h3 className="mt-0.5 font-heading text-lg font-bold text-card-foreground">{job.title}</h3>
           </div>
         </div>
@@ -34,14 +41,17 @@ export function JobCard({ job, compact = false }: { job: Job; compact?: boolean 
           <p className="mt-1 text-xs text-muted-foreground">Posted: {job.posted}</p>
           <p className="mt-1 text-xs font-semibold text-highlight-strong">Deadline: {job.deadline}</p>
         </div>
-        <Link
-          to="/jobs/$jobId"
-          params={{ jobId: job.id }}
-          className="inline-flex size-9 items-center justify-center rounded-md border border-border text-primary transition-colors hover:border-primary hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label={`View ${job.title} at ${job.company}`}
-        >
-          <ArrowUpRight className="size-4" />
-        </Link>
+        <div className="flex items-center gap-1">
+          <SaveJobButton jobId={job.id} compact />
+          <Link
+            to="/jobs/$jobId"
+            params={{ jobId: job.id }}
+            className="inline-flex size-9 items-center justify-center rounded-md border border-border text-primary transition-colors hover:border-primary hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={`View ${job.title} at ${job.company}`}
+          >
+            <ArrowUpRight className="size-4" />
+          </Link>
+        </div>
       </div>
     </article>
   );

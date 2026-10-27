@@ -108,7 +108,9 @@ function CategoriesPage() {
       if (search.type !== "all" && job.sector !== search.type) return false;
       if (term && !`${job.title} ${job.company} ${job.summary}`.toLowerCase().includes(term))
         return false;
-      if (search.location && job.region !== search.location) return false;
+      if (search.location === "Remote") {
+        if (job.region !== "Remote" && job.employment !== "Remote") return false;
+      } else if (search.location && job.region !== search.location) return false;
       if (search.employment && job.employment !== search.employment) return false;
       if (search.field && job.field !== search.field) return false;
       if (search.experience && job.experience !== search.experience) return false;
@@ -248,6 +250,15 @@ function CategoriesPage() {
                 {item.label}
               </Link>
             ))}
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-2" aria-label="Quick filters">
+            <span className="mr-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">Quick filters</span>
+            <QuickFilterChip label="Closing soon" active={search.deadline === "Closing soon"} onClick={() => update({ deadline: search.deadline === "Closing soon" ? "" : "Closing soon" })} />
+            <QuickFilterChip label="Remote" active={search.location === "Remote" || search.employment === "Remote"} onClick={() => {
+              const active = search.location === "Remote" || search.employment === "Remote";
+              update({ location: active ? "" : "Remote", employment: "" });
+            }} />
+            <QuickFilterChip label="No experience required" active={search.experience === "No experience"} onClick={() => update({ experience: search.experience === "No experience" ? "" : "No experience" })} />
           </div>
         </div>
       </section>
@@ -460,5 +471,18 @@ function FilterGroup({
         })}
       </div>
     </fieldset>
+  );
+}
+
+function QuickFilterChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${active ? "border-primary bg-primary-soft text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"}`}
+    >
+      {label}
+    </button>
   );
 }
